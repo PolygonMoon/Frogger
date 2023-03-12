@@ -20,8 +20,8 @@ public static class Game
     // = Map Setup
     static byte mapStartX = 2;
     static byte mapStartY = 2;
-    static byte mapLenghtX = 72;
-    static byte mapLenghtY = 26;
+    static byte mapLenghtX = 3; // 72
+    static byte mapLenghtY = 3; // 26
 
     // = Char GFX Setup
     static string charGfxTopA = @"\/°°\/"; // * Pivot is on first left char
@@ -114,6 +114,7 @@ public static class Game
 
     static void DrawBox()
     {
+        // ! DON'T USE DOUBLE LOOP - Bad Performance and Clear() Flickering
         for (int y = 0; y < mapLenghtY + 2; y++)
         {
             for (int x = 0; x < mapLenghtX + 2; x++)
