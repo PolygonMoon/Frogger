@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/polygonmoon/CODE/Frogger/Frogger.csproj": {}
+    "E:\\_PROJECT\\_CODING\\Frogger\\Frogger\\Frogger.csproj": {}
   },
   "projects": {
-    "/home/polygonmoon/CODE/Frogger/Frogger.csproj": {
+    "E:\\_PROJECT\\_CODING\\Frogger\\Frogger\\Frogger.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/polygonmoon/CODE/Frogger/Frogger.csproj",
+        "projectUniqueName": "E:\\_PROJECT\\_CODING\\Frogger\\Frogger\\Frogger.csproj",
         "projectName": "Frogger",
-        "projectPath": "/home/polygonmoon/CODE/Frogger/Frogger.csproj",
-        "packagesPath": "/home/polygonmoon/.nuget/packages/",
-        "outputPath": "/home/polygonmoon/CODE/Frogger/obj/",
+        "projectPath": "E:\\_PROJECT\\_CODING\\Frogger\\Frogger\\Frogger.csproj",
+        "packagesPath": "C:\\Users\\Avalanche\\.nuget\\packages\\",
+        "outputPath": "E:\\_PROJECT\\_CODING\\Frogger\\Frogger\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "/home/polygonmoon/.local/share/godot/mono/GodotNuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "/home/polygonmoon/.nuget/NuGet/NuGet.Config",
-          "/home/polygonmoon/.nuget/NuGet/config/Godot.Offline.Config"
+          "C:\\Users\\Avalanche\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
@@ -56,7 +52,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.300/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
         }
       }
     }

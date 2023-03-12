@@ -17,7 +17,6 @@ void MainMenu()
 void SystemInit()
 {
     Console.CursorVisible = false;
-    frameRate = 1 / 8;    // ! Check why can't write 0,0001 numbers
 }
 
 void QuitApp()

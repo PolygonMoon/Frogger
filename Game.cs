@@ -3,28 +3,34 @@ using System.Threading.Tasks;
 
 public static class Game
 {
+    // = CharStatus
+    static int charPosX;
+    static int charPosY;
+    static bool isMoving = true;
     // = GameStatus
-    int charPosX;
-    int charPosY;
-    bool isMoving = true;
-
-    bool isRunning = true;
-    int frame = 0;
-    int frameInput = 0;
-    float frameRate;
+    static bool isRunning = true;
+    static int frame = 0;
+    static int frameInput = 0;
+    static float frameRate;
+    // = GameSetup
+    const int inputDelay = 20;
+    const int renderDelay = 8;
+    static int verticalRange;
+    static int horizontalRange;
     // = Map Setup
-    byte mapStartX = 4;
-    byte mapStartY = 6;
-    byte mapLenghtX = 40;
-    byte mapLenghtY = 20;
+    static byte mapStartX = 2;
+    static byte mapStartY = 2;
+    static byte mapLenghtX = 72;
+    static byte mapLenghtY = 26;
+
     // = Char GFX Setup
-    string charGfxTopA = @"\/°°\/"; // * Pivot is on first left char
-    string charGfxBottomA = @"\\__//";
+    static string charGfxTopA = @"\/°°\/"; // * Pivot is on first left char
+    static string charGfxBottomA = @"\\__//";
 
-    string charGfxTopB = @"|/°°\|"; // * Pivot is on first left char
-    string charGfxBottomB = @"/\__/\";
+    static string charGfxTopB = @"|/°°\|"; // * Pivot is on first left char
+    static string charGfxBottomB = @"/\__/\";
 
-    public void GameStart()
+    static public void GameStart()
     {
         GameInit();
         InputHandler();
@@ -33,17 +39,19 @@ public static class Game
 
 
     // = GAME INIT
-    void GameInit()
+    static void GameInit()
     {
-        RenderUI();
-        charPosX = mapStartX + mapLenghtX / 2;
+        frameRate = 1 / 8;    // ! Check why can't write 0,0001 numbers
+                              // Starting Char Position Setup
+        charPosX = mapStartX + 1 + mapLenghtX / 2;
         charPosY = mapStartY + mapLenghtY - 1;
+        // Movement Rules Setup
+        verticalRange = 2;
+        horizontalRange = 2;
     }
 
-
-
     // === TASKS
-    void InputHandler()
+    static void InputHandler()
     {
         Task.Run(async () =>
                 {
@@ -56,16 +64,19 @@ public static class Game
                             {
                                 case ConsoleKey.W:
                                     // ! ADD if (inside map size)
-                                    charPosY -= 2;
+                                    charPosY -= verticalRange;
                                     break;
                                 case ConsoleKey.S:
-                                    charPosY += 2;
+                                    charPosY += verticalRange;
                                     break;
                                 case ConsoleKey.A:
-                                    charPosX -= 2;
+                                    charPosX -= horizontalRange;
                                     break;
                                 case ConsoleKey.D:
-                                    charPosX += 2;
+                                    charPosX += horizontalRange;
+                                    break;
+                                case ConsoleKey.Spacebar:
+                                    //Shoot();
                                     break;
                                 case ConsoleKey.Escape:
                                     isRunning = false;
@@ -75,37 +86,61 @@ public static class Game
                             }
                             frameInput++;
                             isMoving = !isMoving;
-                            await Task.Delay(20);
+                            await Task.Delay(inputDelay);
                         }
                     }
                 });
     }
 
-    void Renderer()
+    static void Renderer()
     {
         while (isRunning)
         {
             frame++;
+            Clear();
+            RenderUI();
             charRender();
             // CollisionCheck
         }
     }
 
+
     // === METHODS
-    void RenderUI()
+    static void RenderUI()
     {
-        Clear();
-        // DrawBox() // Draw Map Border
+        DrawBox(); // Draw Map Border
         // DrawBox() // Draw UI Border
     }
 
-    void charRender()
+    static void DrawBox()
     {
-        Clear();
+        for (int y = 0; y < mapLenghtY + 2; y++)
+        {
+            for (int x = 0; x < mapLenghtX + 2; x++)
+            {
+                SetCursorPosition(mapStartX + x, mapStartY + y);
+                if (y == 0 && x == 0) Write("┌");                                   // Top-Left
+                else if (y == 0 && x == mapLenghtX + 1) Write("┐");                 // Top-Right
+                else if (y == mapLenghtY + 1 && x == 0) Write("└");                 // Bottom-Left
+                else if (y == mapLenghtY + 1 && x == mapLenghtX + 1) Write("┘");    // Bottom-Right
+                else if (y == 0 || y == mapLenghtY + 1) Write("─");
+                else if (x == 0 || x == mapLenghtX + 1) Write("│");
+            }
+        }
+    }
+
+    static void charRender()
+    {
+        // Debug UI Render
         SetCursorPosition(0, 0);
         Write($"FRAME: {frame}");
-        SetCursorPosition(16, 0);
+        SetCursorPosition(22, 0);
         Write($"Frame Refresh Rate: {frameRate}");
+        //SetCursorPosition(22,1);
+        //(Write($"Cursos Position  X:{Console.CursorLeft} Y:{Console.CursorTop}");
+        // Draw input frame iteraction count
+        SetCursorPosition(0, 1);
+        Write($"Input Pass: {frameInput}");
 
         // Draw player // ! Call RenderChar() from input handler
         // TODO Use IdleRender, on jump render JumpRender, wait 0.2 then render IdleRender
@@ -123,10 +158,6 @@ public static class Game
             SetCursorPosition(charPosX, charPosY + 1);
             Write(charGfxBottomB);
         }
-
-        // Draw input frame iteraction count
-        SetCursorPosition(0, 1);
-        Write($"Input Pass: {frameInput}");
-        Thread.Sleep(8);
+        Thread.Sleep(renderDelay);
     }
 }
