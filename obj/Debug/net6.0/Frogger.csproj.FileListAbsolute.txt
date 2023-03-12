@@ -1,0 +1,15 @@
+/home/polygonmoon/CODE/Frogger/bin/Debug/net6.0/Frogger
+/home/polygonmoon/CODE/Frogger/bin/Debug/net6.0/Frogger.deps.json
+/home/polygonmoon/CODE/Frogger/bin/Debug/net6.0/Frogger.runtimeconfig.json
+/home/polygonmoon/CODE/Frogger/bin/Debug/net6.0/Frogger.dll
+/home/polygonmoon/CODE/Frogger/bin/Debug/net6.0/Frogger.pdb
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/Frogger.csproj.AssemblyReference.cache
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/Frogger.GeneratedMSBuildEditorConfig.editorconfig
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/Frogger.AssemblyInfoInputs.cache
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/Frogger.AssemblyInfo.cs
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/Frogger.csproj.CoreCompileInputs.cache
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/Frogger.dll
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/refint/Frogger.dll
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/Frogger.pdb
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/Frogger.genruntimeconfig.cache
+/home/polygonmoon/CODE/Frogger/obj/Debug/net6.0/ref/Frogger.dll
