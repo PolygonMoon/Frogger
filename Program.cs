@@ -51,16 +51,16 @@ Task.Run(async () =>
                     {
                         case ConsoleKey.W:
                             // ! ADD if (inside map size)
-                            charPosY -= 1;
+                            charPosY -= 2;
                             break;
                         case ConsoleKey.S:
-                            charPosY += 1;
+                            charPosY += 2;
                             break;
                         case ConsoleKey.A:
-                            charPosX -= 1;
+                            charPosX -= 2;
                             break;
                         case ConsoleKey.D:
-                            charPosX += 1;
+                            charPosX += 2;
                             break;
                         case ConsoleKey.Escape:
                             isRunning = false;
