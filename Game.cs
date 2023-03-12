@@ -18,10 +18,10 @@ public static class Game
     static int verticalRange;
     static int horizontalRange;
     // = Map Setup
-    static byte mapStartX = 2;
-    static byte mapStartY = 2;
-    static byte mapLenghtX = 3; // 72
-    static byte mapLenghtY = 3; // 26
+    static byte mapStartX = 0;
+    static byte mapStartY = 5;
+    static byte mapLenghtX = 72; // 72
+    static byte mapLenghtY = 26; // 26
 
     // = Char GFX Setup
     static string charGfxTopA = @"\/°°\/"; // * Pivot is on first left char
@@ -42,9 +42,14 @@ public static class Game
     static void GameInit()
     {
         frameRate = 1 / 8;    // ! Check why can't write 0,0001 numbers
-                              // Starting Char Position Setup
-        charPosX = mapStartX + 1 + mapLenghtX / 2;
-        charPosY = mapStartY + mapLenghtY - 1;
+
+        // Map Setup
+        mapLenghtX = (byte)(byte)(WindowWidth - mapStartX);
+        mapLenghtY = (byte)(WindowHeight - mapStartY);
+
+        // Starting Char Position Setup
+        charPosX = mapStartX + mapLenghtX / 2 - charGfxBottomA.Length / 2 - 1;
+        charPosY = mapStartY + mapLenghtY - 2;
         // Movement Rules Setup
         verticalRange = 2;
         horizontalRange = 2;
@@ -101,6 +106,7 @@ public static class Game
             RenderUI();
             charRender();
             // CollisionCheck
+            Thread.Sleep(renderDelay);
         }
     }
 
@@ -108,25 +114,58 @@ public static class Game
     // === METHODS
     static void RenderUI()
     {
-        DrawBox(); // Draw Map Border
-        // DrawBox() // Draw UI Border
+        // TODO use horizontal console lenght
+        DrawLineH(0, WindowWidth, mapStartY - 1, "_");      // Draw Line at Debug Panel Bottom
+
+        // ! Avoid due to performance issue
+        //DrawBoxEmpty(mapStartX, mapLenghtX, mapStartY, mapLenghtY); // Draw Map Border
+        //DrawBox(10,20,5,10, "X"); // Test Box Draw
     }
 
-    static void DrawBox()
+    static void DrawBoxEmpty(int xStart, int xLength, int yStart, int yLength)
     {
-        // ! DON'T USE DOUBLE LOOP - Bad Performance and Clear() Flickering
-        for (int y = 0; y < mapLenghtY + 2; y++)
+        // Draw Corner
+        SetCursorPosition(xStart, yStart);
+        Write("┌");
+        SetCursorPosition(xStart + xLength + 1, yStart);
+        Write("┐");
+        SetCursorPosition(xStart, yStart + yLength + 1);
+        Write("└");
+        SetCursorPosition(xStart + xLength + 1, yStart + yLength + 1);
+        Write("┘");
+        DrawLineH(xStart + 1, xLength, yStart, "-");
+        DrawLineH(xStart + 1, xLength, yStart + yLength + 1, "-");
+
+        DrawLineV(yStart + 1, yLength, xStart, "|");
+        DrawLineV(yStart + 1, yLength, xStart + xLength + 1, "|");
+    }
+
+    static void DrawBox(int xStart, int xLength, int yStart, int yLength, string symbol)
+    {
+        for (int y = 0; y < yLength + 2; y++)
         {
-            for (int x = 0; x < mapLenghtX + 2; x++)
+            for (int x = 0; x < xLength + 2; x++)
             {
-                SetCursorPosition(mapStartX + x, mapStartY + y);
-                if (y == 0 && x == 0) Write("┌");                                   // Top-Left
-                else if (y == 0 && x == mapLenghtX + 1) Write("┐");                 // Top-Right
-                else if (y == mapLenghtY + 1 && x == 0) Write("└");                 // Bottom-Left
-                else if (y == mapLenghtY + 1 && x == mapLenghtX + 1) Write("┘");    // Bottom-Right
-                else if (y == 0 || y == mapLenghtY + 1) Write("─");
-                else if (x == 0 || x == mapLenghtX + 1) Write("│");
+                SetCursorPosition(xStart + x, yStart + y);
+                Write(symbol);
             }
+        }
+    }
+
+    static void DrawLineH(int xStart, int xLength, int yStart, string symbol)
+    {
+        for (int i = 0; i < xLength; i++)
+        {
+            SetCursorPosition(xStart + i, yStart);
+            Write(symbol);
+        }
+    }
+    static void DrawLineV(int yStart, int yLength, int xStart, string symbol)
+    {
+        for (int i = 0; i < yLength; i++)
+        {
+            SetCursorPosition(xStart, yStart + i);
+            Write(symbol);
         }
     }
 
@@ -159,6 +198,5 @@ public static class Game
             SetCursorPosition(charPosX, charPosY + 1);
             Write(charGfxBottomB);
         }
-        Thread.Sleep(renderDelay);
     }
 }
