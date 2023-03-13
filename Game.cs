@@ -6,6 +6,9 @@ using static UiTools;
 public static class Game
 {
     // = CharStatus
+    // TODO int lifeCount; 
+    // TODO int lifeMax = 4;
+    // TODO int playerScore;
     static int charPosX;
     static int charPosY;
     static bool isMoving = false;
@@ -237,7 +240,7 @@ public static class Game
             Write(charGfxBottomB);
         }
         // Magic Trick to avoid ReadKey() input render inside near char
-        SetCursorPosition(110, 0);
+        SetCursorPosition(96, 0);
         Write($"Input: ");
     }
 }
