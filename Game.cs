@@ -16,6 +16,7 @@ public static class Game
     static int charLength;
     // = GameStatus
     public static bool isRunning = true;
+    static int currentLevelIndex;   // TODO Current Level Index to track current level 
     static int frame = 0;
     static int inputCount = 0;      // Jump Counter
     static float frameRate;
@@ -42,7 +43,8 @@ public static class Game
     // === Initialize Game Loops
     static public void GameStart()
     {
-        GameInit();
+        GameInit();             // ! Move Map/Level stuff to MapInit();
+        //MapInit();            // ! Include LoadMap() here!
         InputHandler();         // Async Loop - Handle Player Input
         ShootsHandler();        // Asynch Loop - Handle Shoots Movements
         ExplosionsHandler();    // Asynch Loop - Handle Explosions Animation
@@ -151,14 +153,20 @@ public static class Game
     {
         frameRate = (1.0f / renderDelay) * 1000f;
 
+        // =============== MAP INIT
         // Map Setup
+        // TODO (if actualLevelIndex == 0) LoadMap(0);
+        // ! LoadMap(index);  // From Map.cs
         mapLenghtX = (byte)(byte)((WindowWidth - mapStartX) - 1);
         mapLenghtY = (byte)(WindowHeight - mapStartY);
 
         // Char Setup
         charLength = charGfxBottomA.Length;
+        // TODO Use SpawnPlayer()
         charPosX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1;
         charPosY = mapStartY + mapLenghtY - 2;
+        // ===========================
+
         // Movement Rules Setup
         verticalRange = 2;
         horizontalRange = 2;
