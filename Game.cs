@@ -39,14 +39,14 @@ public static class Game
     static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
     static string charGfxBottomB = @"-\_/-";
 
-    // === Starting Game Loops
+    // === Initialize Game Loops
     static public void GameStart()
     {
         GameInit();
         InputHandler();         // Async Loop - Handle Player Input
         ShootsHandler();        // Asynch Loop - Handle Shoots Movements
         ExplosionsHandler();    // Asynch Loop - Handle Explosions Animation
-        Renderer();             // Main Loop - Handle Rendering Methods
+        Renderer();             // Main Loop - Handle Rendering Functions
     }
 
     // === TASKS & LOOPS
