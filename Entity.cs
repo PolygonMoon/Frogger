@@ -7,6 +7,7 @@ public class Entity
     public int posY;
 
     Type type;
+    Gun? gun;
 
     enum Type
     {
@@ -20,7 +21,8 @@ public class Entity
         
     }
 
-
+    // ! Add MovementHandler()
+    // ! Add EnemyShootHandler()  | use Gun istance var to 
 
 
 }

@@ -4,7 +4,7 @@ using static UiTools;
 
 public static class ShootManager
 {
-    // Bullet Setup
+    // Bullet Setup // ! Move to Bullet class
     public static string shootGfx = "|";
     public static string explosionGfxStart = "+";
     public static string explosionGfxEnd = "X";
@@ -13,10 +13,10 @@ public static class ShootManager
     public static bool canShoot = true;
     public static int shootTimer = 0;
 
-    // Gun Setup
-    public const int maxShoots = 5;        // Max sontemporary shoots count
-    public static int shootSpeed = 16;     // Milliseconds between shoot movement
-    public const int shootDelay = 5;
+    // Gun Setup    // ! Move to Gun class
+    public const int maxBullets = 5;        // Max sontemporary bullets count
+    public static int bulletSpeed = 30;     // 16 | Milliseconds between bullets movement
+    public const int shootDelay = 5;        // Milliseconds between bullets shoot
     // Explosion Setup
     public const int explosionDelay = 5;        // Explosion first animation phase duration
     public const int explosionDuration = 12;    // Explosion total effect duration
@@ -24,13 +24,15 @@ public static class ShootManager
 
     // === STRUCT
     // ! Move to Bullet class
-    public struct Shoot
+    public struct Bullet
     {
         public int posX;
         public int posY;
         public bool isPlayer;
+        // TODO Add Destroy() method | set istance = null;  *After remove it from the parent list
     }
 
+    // ? Move to Explosion class | Maybe later
     public struct Explosion
     {
         public int posX;
@@ -40,12 +42,12 @@ public static class ShootManager
     }
 
     // Shoots List
-    public static List<Shoot> shoots = new List<Shoot>();
+    public static List<Bullet> bullets = new List<Bullet>();
     // Explosion List
     public static List<Explosion> explosions = new List<Explosion>();
 
     // === TASKS & LOOPS
-    public static void ShootsHandler()
+    public static void BulletHandler()  // ! Move to Gun class due to custom shootSpeed needs
     {
         Task.Run(async () =>
                {
@@ -54,27 +56,27 @@ public static class ShootManager
                        if (shootTimer < shootDelay) shootTimer++;
                        if (shootTimer >= shootDelay) canShoot = true;
 
-                       if (shoots.Count > 0)
+                       if (bullets.Count > 0)
                        {
-                           for (int i = 0; i < shoots.Count; i++)
+                           for (int i = 0; i < bullets.Count; i++)
                            {
                                // Collision Detection
-                               if (shoots[i].posY > Game.mapStartY - 1 && shoots[i].posY < Game.mapStartX) //! need -1?
+                               if (bullets[i].posY > Game.mapStartY - 1 && bullets[i].posY < Game.mapLenghtY + Game.mapStartY) //! need -1?
                                {
                                    int newPos;
-                                   if (shoots[i].isPlayer) newPos = shoots[i].posY - 1;
-                                   else newPos = shoots[i].posY + 1;
-                                   Shoot updatedShoot = new Shoot { posX = shoots[i].posX, posY = newPos };
-                                   shoots[i] = updatedShoot;
+                                   if (!bullets[i].isPlayer) { newPos = bullets[i].posY - 1; }
+                                   else newPos = bullets[i].posY + 1;
+                                   Bullet updatedBullet = new Bullet { posX = bullets[i].posX, posY = newPos };
+                                   bullets[i] = updatedBullet;
                                }
                                else
                                {
-                                   NewExplosion(shoots[i].posX, shoots[i].posY);
-                                   shoots.RemoveAt(i);
+                                   NewExplosion(bullets[i].posX, bullets[i].posY);
+                                   bullets.RemoveAt(i);
                                }
                            }
                        }
-                       await Task.Delay(shootSpeed);
+                       await Task.Delay(bulletSpeed);
                    }
                });
     }
@@ -124,14 +126,15 @@ public static class ShootManager
         Write("Spawning New Explosions");
     }
 
-    public static void NewShoot(int spawnX, int spawnY)
+    public static void NewBullet(int spawnX, int spawnY, bool isPlayer)
     {
         if (canShoot)
         {
-            Shoot newShoot = new Shoot();
-            newShoot.posX = spawnX;
-            newShoot.posY = spawnY;
-            shoots.Add(newShoot);
+            Bullet newBullet = new Bullet();
+            newBullet.posX = spawnX;
+            newBullet.posY = spawnY;
+            newBullet.isPlayer = isPlayer;
+            bullets.Add(newBullet);
             // Reset shooting capability 
             canShoot = false;
             shootTimer = 0;

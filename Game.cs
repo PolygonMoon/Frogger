@@ -46,8 +46,8 @@ public static class Game
     // = Map Setup
     public static byte mapStartX = 0;
     public static byte mapStartY = 6;
-    static byte mapLenghtX = 72; // 72
-    static byte mapLenghtY = 26; // 26
+    public static byte mapLenghtX = 72; // 72
+    public static byte mapLenghtY = 26; // 26
 
     // === Initialize Game Loops
     static public void GameStart()
@@ -55,7 +55,7 @@ public static class Game
         GameInit();             // ! Move Map/Level stuff to MapInit();
         //MapInit();            // ! Include LoadMap() here!
         InputHandler();         // Async Loop - Handle Player Input
-        ShootsHandler();        // Asynch Loop - Handle Shoots Movements
+        BulletHandler();        // Asynch Loop - Handle Shoots Movements
         ExplosionsHandler();    // Asynch Loop - Handle Explosions Animation
         Renderer();             // Main Loop - Handle Rendering Functions
     }
@@ -104,7 +104,7 @@ public static class Game
                                     }
                                     break;
                                 case ConsoleKey.Spacebar:
-                                    if (charPosY > mapStartY && ShootManager.canShoot) NewShoot(charPosX + 2, charPosY - 1);
+                                    if (charPosY > mapStartY && ShootManager.canShoot) NewBullet(charPosX + 2, charPosY - 1, true);
                                     break;
                                 case ConsoleKey.Escape:
                                     isRunning = false;
@@ -150,7 +150,7 @@ public static class Game
             Clear();
             UiRenderer();
             //MapRenderer();
-            ShootsRenderer();
+            ShootsRenderer(); // ! Need separate Renderer for each Gun istance | due to different bullet speed
             CharRenderer();
             // CollisionCheck();
             Thread.Sleep(renderDelay);
@@ -197,7 +197,7 @@ public static class Game
         Write($"InputTimer:{inputTimer} / {inputDelay} | {canMove}");
 
         SetCursorPosition(45, 0);
-        Write($"Shoot Count:{shoots.Count} / {maxShoots}");
+        Write($"Shoot Count:{bullets.Count} / {maxBullets}");
         SetCursorPosition(45, 1);
         Write($"Shoot Timer:{shootTimer} / {shootDelay} | {canShoot}");
 
@@ -205,7 +205,7 @@ public static class Game
         Write($"Explosion Count:{explosions.Count}");
 
         SetCursorPosition(0, 3);
-        if (shoots.Count > 0) WriteLine("Rendering Shoots");
+        if (bullets.Count > 0) WriteLine("Rendering Shoots");
         SetCursorPosition(20, 3);
         if (explosions.Count > 0) WriteLine("Rendering Explosions");
 
@@ -219,15 +219,15 @@ public static class Game
     static void ShootsRenderer()
     {
         // Shoots rendering
-        if (shoots.Count > 0)
+        if (bullets.Count > 0)
         {
-            for (int i = 0; i < shoots.Count; i++)
+            for (int i = 0; i < bullets.Count; i++)
             {
-                SetCursorPosition(shoots[i].posX, shoots[i].posY);
+                SetCursorPosition(bullets[i].posX, bullets[i].posY);
                 Write(shootGfx);
             }
         }
-        // Explosions rendering
+        // Explosions rendering // ! Move to a separate static ExplosionRenderer() in Game.cs | manage all the explosion
         if (explosions.Count > 0)
         {
             for (int i = 0; i < explosions.Count; i++)
@@ -259,5 +259,7 @@ public static class Game
         // Magic Trick to avoid ReadKey() input render inside near char
         SetCursorPosition(96, 0);
         Write($"Input: ");
+
+        // ! Add different for loops to render Cars, Trunk, Enemy, Coins, PowerUp etc
     }
 }
