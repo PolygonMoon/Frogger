@@ -1,5 +1,7 @@
 using static System.Console;
 using System.Threading.Tasks;
+using static ShootManager;
+using static UiTools;
 
 public static class Game
 {
@@ -7,21 +9,23 @@ public static class Game
     static int charPosX;
     static int charPosY;
     static bool isMoving = false;
+    static bool canMove = true;
     static int charLength;
     // = GameStatus
-    static bool isRunning = true;
+    public static bool isRunning = true;
     static int frame = 0;
     static int frameInput = 0;
     static float frameRate;
     // = GameSetup
-    const int inputDelay = 16;
+    const int inputRefresh = 16;
+    const int inputDelay = 3;       // Pause between input detection | Also used to manage the Player movement speed
     const int renderDelay = 16;
-    static int inputTimer = 0;
+    static int inputTimer;
     static int verticalRange;
     static int horizontalRange;
     // = Map Setup
-    static byte mapStartX = 0;
-    static byte mapStartY = 5;
+    public static byte mapStartX = 0;
+    public static byte mapStartY = 5;
     static byte mapLenghtX = 72; // 72
     static byte mapLenghtY = 26; // 26
 
@@ -36,8 +40,9 @@ public static class Game
     static public void GameStart()
     {
         GameInit();
-        InputHandler();
-        Renderer();
+        InputHandler();     // Async Loop - Handle Player Input
+        ShootsHandler();    // Asynch Loop - Handle Shoots Movements
+        Renderer();         // Main Loop - Handle Rendering Methods
     }
 
     // === TASKS & LOOPS
@@ -47,47 +52,44 @@ public static class Game
                 {
                     while (isRunning)
                     {
-                        inputTimer++;
+                        if (inputTimer < inputDelay) inputTimer++;
+                        if (inputTimer >= inputDelay) canMove = true;
                         // ! Find a way to detect just one input at time (prevent hold spam)
-                        if (Console.KeyAvailable && !isMoving)
+                        if (Console.KeyAvailable && !isMoving && canMove)
                         {
-                            inputTimer = 0;
-                            frameInput++;
-                            JumpAnimation();
-
                             ConsoleKeyInfo input = Console.ReadKey();
                             switch (input.Key)
                             {
                                 case ConsoleKey.W:
-                                    if (charPosY > mapStartY)
+                                    if (charPosY > mapStartY && canMove)
                                     {
                                         charPosY -= verticalRange;
-                                        isMoving = true;
+                                        UpdateInput();
                                     }
                                     break;
                                 case ConsoleKey.S:
-                                    if (charPosY < mapStartY + mapLenghtY - 2)
+                                    if (charPosY < mapStartY + mapLenghtY - 2 && canMove)
                                     {
                                         charPosY += verticalRange;
-                                        isMoving = true;
+                                        UpdateInput();
                                     }
                                     break;
                                 case ConsoleKey.A:
-                                    if (charPosX > 1)
+                                    if (charPosX > 1 && canMove)
                                     {
                                         charPosX -= horizontalRange;
-                                        isMoving = true;
+                                        UpdateInput();
                                     }
                                     break;
                                 case ConsoleKey.D:
-                                    if (charPosX < mapLenghtX + mapStartX - charLength)
+                                    if (charPosX < mapLenghtX + mapStartX - charLength && canMove)
                                     {
                                         charPosX += horizontalRange;
-                                        isMoving = true;
+                                        UpdateInput();
                                     }
                                     break;
                                 case ConsoleKey.Spacebar:
-                                    //Shoot();
+                                    if (charPosY > mapStartY && ShootManager.canShoot) Spawn(charPosX + 2, charPosY - 1);
                                     break;
                                 case ConsoleKey.Escape:
                                     isRunning = false;
@@ -96,11 +98,24 @@ public static class Game
                                     break;
                             }
                         }
-                        await Task.Delay(inputDelay);
+                        // Clear the input buffer if input is not being processed within the switch cases
+                        else if (Console.KeyAvailable)
+                        {
+                            Console.ReadKey(true); // Read the key to remove it from the input buffer
+                        }
+                        await Task.Delay(inputRefresh);
                     }
                 });
     }
 
+    static void UpdateInput()
+    {
+        canMove = false;
+        isMoving = true;
+        inputTimer = 0;
+        frameInput++;
+        JumpAnimation();
+    }
     static void JumpAnimation()
     {
         Task.Run(async () =>
@@ -118,8 +133,10 @@ public static class Game
         {
             frame++;
             Clear();
-            RenderUI();
-            charRender();
+            UiRenderer();
+            //MapRenderer();
+            ShootsRenderer();
+            CharRenderer();
             // CollisionCheck
             Thread.Sleep(renderDelay);
         }
@@ -141,80 +158,59 @@ public static class Game
         // Movement Rules Setup
         verticalRange = 2;
         horizontalRange = 2;
+        inputTimer = inputDelay;
     }
 
     // == RENDERING
-    static void RenderUI()
+    static void UiRenderer()
     {
-        DrawLineH(0, WindowWidth, mapStartY - 1, "_");  // Draw Line at Debug Panel Bottom
+        // Debug UI Render
+        SetCursorPosition(0, 0);
+        Write($"FRAME: {frame}");
+        SetCursorPosition(0, 1);
+        Write($"Input Pass: {frameInput}");
+
+        SetCursorPosition(18, 0);
+        Write($"Frame Refresh Rate: {frameRate.ToString("0.00")}");
+        SetCursorPosition(18, 1);
+        Write($"InputTimer:{inputTimer} / {inputDelay} | {canMove}");
+
+        SetCursorPosition(48, 0);
+        Write($"Shoot Count:{shoots.Count} / {maxShoots}");
+        SetCursorPosition(48, 1);
+        Write($"Shoot Timer:{shootTimer} / {shootDelay} | {canShoot}");
+
+        DrawLineH(0, WindowWidth, mapStartY - 2, "_");  // Draw Line at Debug Panel Bottom
 
         // ! Avoid due to performance issue
         //DrawBoxEmpty(mapStartX, mapLenghtX, mapStartY, mapLenghtY); // Draw Map Border
         //DrawBox(10,20,5,10, "X"); // Test Box Draw
     }
 
-    static void DrawBoxEmpty(int xStart, int xLength, int yStart, int yLength)
+    static void ShootsRenderer()
     {
-        // Draw Corner
-        SetCursorPosition(xStart, yStart);
-        Write("┌");
-        SetCursorPosition(xStart + xLength + 1, yStart);
-        Write("┐");
-        SetCursorPosition(xStart, yStart + yLength + 1);
-        Write("└");
-        SetCursorPosition(xStart + xLength + 1, yStart + yLength + 1);
-        Write("┘");
-        DrawLineH(xStart + 1, xLength, yStart, "-");
-        DrawLineH(xStart + 1, xLength, yStart + yLength + 1, "-");
-
-        DrawLineV(yStart + 1, yLength, xStart, "|");
-        DrawLineV(yStart + 1, yLength, xStart + xLength + 1, "|");
-    }
-
-    static void DrawBox(int xStart, int xLength, int yStart, int yLength, string symbol)
-    {
-        for (int y = 0; y < yLength + 2; y++)
+        if (shoots.Count > 0)
         {
-            for (int x = 0; x < xLength + 2; x++)
+            // ! Cause Expetion due to shoots list run-time modifications
+            // foreach (var shoot in shoots)
+            // {
+            //     {
+            //         SetCursorPosition(shoot.posX, shoot.posY);
+            //         Write(shootGfx);
+            //     }
+            // }
+
+            for (int i = 0; i < shoots.Count; i++)
             {
-                SetCursorPosition(xStart + x, yStart + y);
-                Write(symbol);
+                SetCursorPosition(shoots[i].posX, shoots[i].posY);
+                Write(shootGfx);
             }
         }
     }
 
-    static void DrawLineH(int xStart, int xLength, int yStart, string symbol)
+    static void CharRenderer()
     {
-        for (int i = 0; i < xLength; i++)
-        {
-            SetCursorPosition(xStart + i, yStart);
-            Write(symbol);
-        }
-    }
-    static void DrawLineV(int yStart, int yLength, int xStart, string symbol)
-    {
-        for (int i = 0; i < yLength; i++)
-        {
-            SetCursorPosition(xStart, yStart + i);
-            Write(symbol);
-        }
-    }
-
-    static void charRender()
-    {
-        // Debug UI Render
-        SetCursorPosition(0, 0);
-        Write($"FRAME: {frame}");
-        SetCursorPosition(22, 0);
-        Write($"Frame Refresh Rate: {frameRate.ToString("0.00")}");
-        SetCursorPosition(22, 1);
-        Write($"InputTimer:{inputTimer}");
-        // Draw input frame iteraction count
-        SetCursorPosition(0, 1);
-        Write($"Input Pass: {frameInput}");
-
-        // Draw player // ! Call RenderChar() from input handler
-        // TODO Use IdleRender, on jump render JumpRender, wait 0.2 then render IdleRender
+        // Draw player
         if (!isMoving)
         {
             SetCursorPosition(charPosX, charPosY);
@@ -229,5 +225,8 @@ public static class Game
             SetCursorPosition(charPosX, charPosY + 1);
             Write(charGfxBottomB);
         }
+        // Magic Trick to avoid ReadKey() input render inside near char
+        SetCursorPosition(68, 0);
+        Write($"Input: ");
     }
 }
