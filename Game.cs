@@ -5,26 +5,42 @@ using static UiTools;
 
 public static class Game
 {
-    // = CharStatus
-    // TODO int lifeCount; 
-    // TODO int lifeMax = 4;
-    // TODO int playerScore;
+    // = CharStatus // ! Move to Entity.cs 
+    // TODO int playerScore;    // Move to Score.cs
     static int charPosX;
     static int charPosY;
     static bool isMoving = false;
     static bool canMove = true;
     static int charLength;
-    // = GameStatus
+    // = Char GFX Setup
+    static string charGfxTopA = @"\/^\/"; // * Pivot is on first left char
+    static string charGfxBottomA = @"\\_//";
+
+    static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
+    static string charGfxBottomB = @"-\_/-";
+
+    // = Entity Status
+    public static Entity player = new Entity();
+    public static List<Entity> cars = new List<Entity>();
+    public static List<Entity> enemies = new List<Entity>();
+    public static List<Entity> trunks = new List<Entity>();
+    public static List<Entity> coins = new List<Entity>();
+    public static List<Entity> powerUps = new List<Entity>();
+
+    // = Game Status
     public static bool isRunning = true;
+    // TODO int lifeCount;
+    // TODO int lifeMax = 4;
     static int currentLevelIndex;   // TODO Current Level Index to track current level 
     static int frame = 0;
     static int inputCount = 0;      // Jump Counter
     static float frameRate;
-    // = GameSetup
+    // = Game Setup
     const int inputRefresh = 16;
     const int inputDelay = 3;       // Pause between input detection | Also used to manage the Player movement speed
     const int renderDelay = 16;
     static int inputTimer;
+    // = Movement Setup
     static int verticalRange;
     static int horizontalRange;
     // = Map Setup
@@ -32,13 +48,6 @@ public static class Game
     public static byte mapStartY = 6;
     static byte mapLenghtX = 72; // 72
     static byte mapLenghtY = 26; // 26
-
-    // = Char GFX Setup
-    static string charGfxTopA = @"\/^\/"; // * Pivot is on first left char
-    static string charGfxBottomA = @"\\_//";
-
-    static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
-    static string charGfxBottomB = @"-\_/-";
 
     // === Initialize Game Loops
     static public void GameStart()

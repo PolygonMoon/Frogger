@@ -4,24 +4,31 @@ using static UiTools;
 
 public static class ShootManager
 {
+    // Bullet Setup
     public static string shootGfx = "|";
     public static string explosionGfxStart = "+";
     public static string explosionGfxEnd = "X";
-    public const int maxShoots = 5;        // Max sontemporary shoots count
-    public static int shootSpeed = 16;     // Milliseconds between shoot movement
 
+    // Gun Status
     public static bool canShoot = true;
     public static int shootTimer = 0;
+
+    // Gun Setup
+    public const int maxShoots = 5;        // Max sontemporary shoots count
+    public static int shootSpeed = 16;     // Milliseconds between shoot movement
     public const int shootDelay = 5;
+    // Explosion Setup
     public const int explosionDelay = 5;        // Explosion first animation phase duration
     public const int explosionDuration = 12;    // Explosion total effect duration
     public const int explosionRefresh = 20;     // Explosion Status Refresh Rate
 
     // === STRUCT
+    // ! Move to Bullet class
     public struct Shoot
     {
         public int posX;
         public int posY;
+        public bool isPlayer;
     }
 
     public struct Explosion
@@ -52,9 +59,11 @@ public static class ShootManager
                            for (int i = 0; i < shoots.Count; i++)
                            {
                                // Collision Detection
-                               if (shoots[i].posY > Game.mapStartY - 1)
+                               if (shoots[i].posY > Game.mapStartY - 1 && shoots[i].posY < Game.mapStartX) //! need -1?
                                {
-                                   int newPos = shoots[i].posY - 1;
+                                   int newPos;
+                                   if (shoots[i].isPlayer) newPos = shoots[i].posY - 1;
+                                   else newPos = shoots[i].posY + 1;
                                    Shoot updatedShoot = new Shoot { posX = shoots[i].posX, posY = newPos };
                                    shoots[i] = updatedShoot;
                                }
