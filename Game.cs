@@ -14,7 +14,7 @@ public static class Game
     // = GameStatus
     public static bool isRunning = true;
     static int frame = 0;
-    static int frameInput = 0;
+    static int inputCount = 0;      // Jump Counter
     static float frameRate;
     // = GameSetup
     const int inputRefresh = 16;
@@ -25,7 +25,7 @@ public static class Game
     static int horizontalRange;
     // = Map Setup
     public static byte mapStartX = 0;
-    public static byte mapStartY = 5;
+    public static byte mapStartY = 6;
     static byte mapLenghtX = 72; // 72
     static byte mapLenghtY = 26; // 26
 
@@ -40,13 +40,14 @@ public static class Game
     static public void GameStart()
     {
         GameInit();
-        InputHandler();     // Async Loop - Handle Player Input
-        ShootsHandler();    // Asynch Loop - Handle Shoots Movements
-        Renderer();         // Main Loop - Handle Rendering Methods
+        InputHandler();         // Async Loop - Handle Player Input
+        ShootsHandler();        // Asynch Loop - Handle Shoots Movements
+        ExplosionsHandler();    // Asynch Loop - Handle Explosions Animation
+        Renderer();             // Main Loop - Handle Rendering Methods
     }
 
     // === TASKS & LOOPS
-    static void InputHandler()
+    static void InputHandler()  // Detect and Handle Player Input
     {
         Task.Run(async () =>
                 {
@@ -55,7 +56,7 @@ public static class Game
                         if (inputTimer < inputDelay) inputTimer++;
                         if (inputTimer >= inputDelay) canMove = true;
                         // ! Find a way to detect just one input at time (prevent hold spam)
-                        if (Console.KeyAvailable && !isMoving && canMove)
+                        if (Console.KeyAvailable && !isMoving)
                         {
                             ConsoleKeyInfo input = Console.ReadKey();
                             switch (input.Key)
@@ -89,7 +90,7 @@ public static class Game
                                     }
                                     break;
                                 case ConsoleKey.Spacebar:
-                                    if (charPosY > mapStartY && ShootManager.canShoot) Spawn(charPosX + 2, charPosY - 1);
+                                    if (charPosY > mapStartY && ShootManager.canShoot) NewShoot(charPosX + 2, charPosY - 1);
                                     break;
                                 case ConsoleKey.Escape:
                                     isRunning = false;
@@ -113,7 +114,7 @@ public static class Game
         canMove = false;
         isMoving = true;
         inputTimer = 0;
-        frameInput++;
+        inputCount++;
         JumpAnimation();
     }
     static void JumpAnimation()
@@ -127,7 +128,7 @@ public static class Game
                });
     }
 
-    static void Renderer()
+    static void Renderer()  // Rendering Loops
     {
         while (isRunning)
         {
@@ -137,7 +138,7 @@ public static class Game
             //MapRenderer();
             ShootsRenderer();
             CharRenderer();
-            // CollisionCheck
+            // CollisionCheck();
             Thread.Sleep(renderDelay);
         }
     }
@@ -168,17 +169,25 @@ public static class Game
         SetCursorPosition(0, 0);
         Write($"FRAME: {frame}");
         SetCursorPosition(0, 1);
-        Write($"Input Pass: {frameInput}");
+        Write($"Jump Counter: {inputCount}");
 
-        SetCursorPosition(18, 0);
-        Write($"Frame Refresh Rate: {frameRate.ToString("0.00")}");
-        SetCursorPosition(18, 1);
+        SetCursorPosition(20, 0);
+        Write($"Rendering FPS: {frameRate.ToString("0.00")}");
+        SetCursorPosition(20, 1);
         Write($"InputTimer:{inputTimer} / {inputDelay} | {canMove}");
 
-        SetCursorPosition(48, 0);
+        SetCursorPosition(45, 0);
         Write($"Shoot Count:{shoots.Count} / {maxShoots}");
-        SetCursorPosition(48, 1);
+        SetCursorPosition(45, 1);
         Write($"Shoot Timer:{shootTimer} / {shootDelay} | {canShoot}");
+
+        SetCursorPosition(75, 0);
+        Write($"Explosion Count:{explosions.Count}");
+
+        SetCursorPosition(0, 3);
+        if (shoots.Count > 0) WriteLine("Rendering Shoots");
+        SetCursorPosition(20, 3);
+        if (explosions.Count > 0) WriteLine("Rendering Explosions");
 
         DrawLineH(0, WindowWidth, mapStartY - 2, "_");  // Draw Line at Debug Panel Bottom
 
@@ -189,21 +198,23 @@ public static class Game
 
     static void ShootsRenderer()
     {
+        // Shoots rendering
         if (shoots.Count > 0)
         {
-            // ! Cause Expetion due to shoots list run-time modifications
-            // foreach (var shoot in shoots)
-            // {
-            //     {
-            //         SetCursorPosition(shoot.posX, shoot.posY);
-            //         Write(shootGfx);
-            //     }
-            // }
-
             for (int i = 0; i < shoots.Count; i++)
             {
                 SetCursorPosition(shoots[i].posX, shoots[i].posY);
                 Write(shootGfx);
+            }
+        }
+        // Explosions rendering
+        if (explosions.Count > 0)
+        {
+            for (int i = 0; i < explosions.Count; i++)
+            {
+                SetCursorPosition(explosions[i].posX, explosions[i].posY);
+                if (!explosions[i].isExploded) Write(explosionGfxStart);
+                else Write(explosionGfxEnd);
             }
         }
     }
@@ -226,7 +237,7 @@ public static class Game
             Write(charGfxBottomB);
         }
         // Magic Trick to avoid ReadKey() input render inside near char
-        SetCursorPosition(68, 0);
+        SetCursorPosition(110, 0);
         Write($"Input: ");
     }
 }
