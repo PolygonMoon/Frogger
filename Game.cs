@@ -6,15 +6,17 @@ public static class Game
     // = CharStatus
     static int charPosX;
     static int charPosY;
-    static bool isMoving = true;
+    static bool isMoving = false;
+    static int charLength;
     // = GameStatus
     static bool isRunning = true;
     static int frame = 0;
     static int frameInput = 0;
     static float frameRate;
     // = GameSetup
-    const int inputDelay = 20;
-    const int renderDelay = 8;
+    const int inputDelay = 16;
+    const int renderDelay = 16;
+    static int inputTimer = 0;
     static int verticalRange;
     static int horizontalRange;
     // = Map Setup
@@ -24,12 +26,13 @@ public static class Game
     static byte mapLenghtY = 26; // 26
 
     // = Char GFX Setup
-    static string charGfxTopA = @"\/°°\/"; // * Pivot is on first left char
-    static string charGfxBottomA = @"\\__//";
+    static string charGfxTopA = @"\/^\/"; // * Pivot is on first left char
+    static string charGfxBottomA = @"\\_//";
 
-    static string charGfxTopB = @"|/°°\|"; // * Pivot is on first left char
-    static string charGfxBottomB = @"/\__/\";
+    static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
+    static string charGfxBottomB = @"-\_/-";
 
+    // === Starting Game Loops
     static public void GameStart()
     {
         GameInit();
@@ -37,48 +40,51 @@ public static class Game
         Renderer();
     }
 
-
-    // = GAME INIT
-    static void GameInit()
-    {
-        frameRate = 1 / 8;    // ! Check why can't write 0,0001 numbers
-
-        // Map Setup
-        mapLenghtX = (byte)(byte)(WindowWidth - mapStartX);
-        mapLenghtY = (byte)(WindowHeight - mapStartY);
-
-        // Starting Char Position Setup
-        charPosX = mapStartX + mapLenghtX / 2 - charGfxBottomA.Length / 2 - 1;
-        charPosY = mapStartY + mapLenghtY - 2;
-        // Movement Rules Setup
-        verticalRange = 2;
-        horizontalRange = 2;
-    }
-
-    // === TASKS
+    // === TASKS & LOOPS
     static void InputHandler()
     {
         Task.Run(async () =>
                 {
                     while (isRunning)
                     {
-                        if (Console.KeyAvailable)
+                        inputTimer++;
+                        // ! Find a way to detect just one input at time (prevent hold spam)
+                        if (Console.KeyAvailable && !isMoving)
                         {
+                            inputTimer = 0;
+                            frameInput++;
+                            JumpAnimation();
+
                             ConsoleKeyInfo input = Console.ReadKey();
                             switch (input.Key)
                             {
                                 case ConsoleKey.W:
-                                    // ! ADD if (inside map size)
-                                    charPosY -= verticalRange;
+                                    if (charPosY > mapStartY)
+                                    {
+                                        charPosY -= verticalRange;
+                                        isMoving = true;
+                                    }
                                     break;
                                 case ConsoleKey.S:
-                                    charPosY += verticalRange;
+                                    if (charPosY < mapStartY + mapLenghtY - 2)
+                                    {
+                                        charPosY += verticalRange;
+                                        isMoving = true;
+                                    }
                                     break;
                                 case ConsoleKey.A:
-                                    charPosX -= horizontalRange;
+                                    if (charPosX > 1)
+                                    {
+                                        charPosX -= horizontalRange;
+                                        isMoving = true;
+                                    }
                                     break;
                                 case ConsoleKey.D:
-                                    charPosX += horizontalRange;
+                                    if (charPosX < mapLenghtX + mapStartX - charLength)
+                                    {
+                                        charPosX += horizontalRange;
+                                        isMoving = true;
+                                    }
                                     break;
                                 case ConsoleKey.Spacebar:
                                     //Shoot();
@@ -89,12 +95,21 @@ public static class Game
                                 default:
                                     break;
                             }
-                            frameInput++;
-                            isMoving = !isMoving;
-                            await Task.Delay(inputDelay);
                         }
+                        await Task.Delay(inputDelay);
                     }
                 });
+    }
+
+    static void JumpAnimation()
+    {
+        Task.Run(async () =>
+               {
+                   Thread.Sleep(120);
+                   isMoving = false;
+                   await Task.Delay(1);
+                   return;
+               });
     }
 
     static void Renderer()
@@ -110,12 +125,28 @@ public static class Game
         }
     }
 
-
     // === METHODS
+    static void GameInit()
+    {
+        frameRate = (1.0f / renderDelay) * 1000f;
+
+        // Map Setup
+        mapLenghtX = (byte)(byte)((WindowWidth - mapStartX) - 1);
+        mapLenghtY = (byte)(WindowHeight - mapStartY);
+
+        // Char Setup
+        charLength = charGfxBottomA.Length;
+        charPosX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1;
+        charPosY = mapStartY + mapLenghtY - 2;
+        // Movement Rules Setup
+        verticalRange = 2;
+        horizontalRange = 2;
+    }
+
+    // == RENDERING
     static void RenderUI()
     {
-        // TODO use horizontal console lenght
-        DrawLineH(0, WindowWidth, mapStartY - 1, "_");      // Draw Line at Debug Panel Bottom
+        DrawLineH(0, WindowWidth, mapStartY - 1, "_");  // Draw Line at Debug Panel Bottom
 
         // ! Avoid due to performance issue
         //DrawBoxEmpty(mapStartX, mapLenghtX, mapStartY, mapLenghtY); // Draw Map Border
@@ -175,16 +206,16 @@ public static class Game
         SetCursorPosition(0, 0);
         Write($"FRAME: {frame}");
         SetCursorPosition(22, 0);
-        Write($"Frame Refresh Rate: {frameRate}");
-        //SetCursorPosition(22,1);
-        //(Write($"Cursos Position  X:{Console.CursorLeft} Y:{Console.CursorTop}");
+        Write($"Frame Refresh Rate: {frameRate.ToString("0.00")}");
+        SetCursorPosition(22, 1);
+        Write($"InputTimer:{inputTimer}");
         // Draw input frame iteraction count
         SetCursorPosition(0, 1);
         Write($"Input Pass: {frameInput}");
 
         // Draw player // ! Call RenderChar() from input handler
         // TODO Use IdleRender, on jump render JumpRender, wait 0.2 then render IdleRender
-        if (isMoving)
+        if (!isMoving)
         {
             SetCursorPosition(charPosX, charPosY);
             Write(charGfxTopA);
