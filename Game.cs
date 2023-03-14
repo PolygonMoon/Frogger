@@ -19,7 +19,7 @@ public static class Game
     static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
     static string charGfxBottomB = @"-\_/-";
 
-    // = Entity Status
+    // = Entity Manager
     public static Entity player = new Entity();
     public static List<Entity> cars = new List<Entity>();
     public static List<Entity> enemies = new List<Entity>();
@@ -94,6 +94,12 @@ public static class Game
                                     {
                                         charPosX -= horizontalRange;
                                         UpdateInput();
+
+                                        // ! TEMP TEST | shoulb me inside entityHandler ?
+                                        for (int i = 0; i < cars.Count; i++)
+                                        {
+                                            cars[i].Move();
+                                        }
                                     }
                                     break;
                                 case ConsoleKey.D:
@@ -151,7 +157,8 @@ public static class Game
             UiRenderer();
             //MapRenderer();
             ShootsRenderer(); // ! Need separate Renderer for each Gun istance | due to different bullet speed
-            CharRenderer();
+            EntitiesRenderer();
+            PlayerRenderer();
             // CollisionCheck();
             Thread.Sleep(renderDelay);
         }
@@ -169,7 +176,20 @@ public static class Game
         mapLenghtX = (byte)(byte)((WindowWidth - mapStartX) - 1);
         mapLenghtY = (byte)(WindowHeight - mapStartY);
 
-        // Char Setup
+        // == TEST == Entity Setup
+        // Spawn Position Setup
+        int[] spawnPosition = new int[2];
+        spawnPosition[0] = mapLenghtX / 2;
+        spawnPosition[1] = mapLenghtY / 2;
+        // Instantiate new Entity
+        Entity car = new Entity();
+        car.Spawn(spawnPosition, Entity.EntityType.Enemy, Entity.MoveType.Left);
+        car.Init();
+
+        cars.Add(car);
+
+
+        // Player Setup
         charLength = charGfxBottomA.Length;
         // TODO Use SpawnPlayer()
         charPosX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1;
@@ -239,7 +259,19 @@ public static class Game
         }
     }
 
-    static void CharRenderer()
+    static void EntitiesRenderer()
+    {
+        for (int i = 0; i < cars.Count; i++)
+        {
+            foreach (var tile in cars[i].tiles)
+            {
+                SetCursorPosition(tile.posX, tile.posY);
+                Write(tile.gfx);
+            }
+        }
+    }
+
+    static void PlayerRenderer()
     {
         // Draw player
         if (!isMoving)
