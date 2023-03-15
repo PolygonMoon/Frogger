@@ -8,6 +8,7 @@ public class Bullet
     public int posY;
     public bool isPlayer;
     public Entity? shooter;
+    public bool isExploded = false;
 
     // Bullet Setup
     public int damage;

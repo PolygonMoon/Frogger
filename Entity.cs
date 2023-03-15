@@ -58,9 +58,10 @@ public class Entity
         Down,       // X nochange | Y + 1
         Up,         // X nochange | Y - 1
         Static,     // No Movement
+        Free        // Free Movement | Used for Players only
     }
 
-    // === METHODS
+    // === SETUP METHODS
     public void Init()
     {
         // TODO Move to TilesInit
@@ -72,23 +73,25 @@ public class Entity
         Console.ReadKey();
         // for loop | assign tile in tiles by reading gfx string
 
+        // Build the tiles array 
         for (int x = 0; x < tiles.GetLength(0); x++)
         {
             for (int y = 0; y < tiles.GetLength(1); y++)
             {
                 Tile newTile = new Tile();
-                newTile.gfx = "X";
+                newTile.gfx = "X";  // ! Need read the gfx values from the entity gfx and pass it to each Tile
                 newTile.posX = posX + x;
                 newTile.posY = posY + y;
                 tiles[x, y] = newTile;
             }
         }
-
         DefineDirection(entityType);
     }
 
-    public void Spawn(int x, int y, EntityType entityType, MoveType moveType)
+    public void Spawn(int x, int y, EntityType newEntityType, MoveType newMoveType)
     {
+        entityType = newEntityType;
+        moveType = newMoveType;
         posX = x;
         posY = y;
     }
@@ -98,6 +101,7 @@ public class Entity
         // TODO Setup direction by EntityType within a Switch case
     }
 
+    // === RUN-TIME METHODS
     public void MoveEntity(Direction newDirection)
     {
         // TODO Start Task.Run with asynch moveDelay
@@ -146,9 +150,6 @@ public class Entity
         // Simply Destroy the entity | Tiles death, damage and explosion are managed in Tile class
     }
 
-
-
-    // ! Add EnemyShootHandler()  | use Gun istance var to 
-
+    // ! Add EnemyBrain() for shooting by shootDelay?
 
 }

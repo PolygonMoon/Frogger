@@ -56,7 +56,6 @@ public static class Game
         GameInit();             // ! Move Map/Level stuff to MapInit();
         //MapInit();            // ! Include LoadMap() here!GunHandler();    
         //EntityInit();         // 
-        //BulletHandlersInit(); // Foreach entity | if gun != null | BulleHandler();
         InputHandler();         // Async Loop - Handle Player Input
         ExplosionsHandler();    // Asynch Loop - Handle Explosions Animation
         Renderer();             // Main Loop - Handle Rendering Functions
@@ -95,6 +94,7 @@ public static class Game
         mapLenghtY = (byte)(WindowHeight - mapStartY);
 
         // === ENTITIES SETUP
+        // ! Add NewPlayerInit() | OR CHECK CONSTRUCTOR TO CREATE ISTANT QUICKLY
         // Setup First Player
         charLength = charGfxBottomA.Length;
         Entity player = new Entity();
@@ -106,6 +106,18 @@ public static class Game
         player.gun.owner = player;
         players.Add(player);
         player.gun.BulletHandler();
+
+        // Setup First Player
+        charLength = charGfxBottomA.Length;
+        Entity player2 = new Entity();
+        player2.spawnX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1 + 20;
+        player2.spawnY = mapStartY + mapLenghtY - 2;
+        player2.Spawn(player2.spawnX, player2.spawnY, Entity.EntityType.Enemy, Entity.MoveType.Left);
+        player2.Init();
+        player2.gun = new Gun();
+        player2.gun.owner = player2;
+        players.Add(player2);
+        player2.gun.BulletHandler();
 
 
         // Setup Car
@@ -128,7 +140,7 @@ public static class Game
         SetCursorPosition(20, 0);
         Write($"Rendering FPS: {frameRate.ToString("0.00")}");
         SetCursorPosition(20, 1);
-        Write($"InputTimer:{inputTimer} / {inputDelay} | {canMove}");
+        Write($"InputTimer:{inputTimer} / {inputDelay} | {inputReady}");
 
         SetCursorPosition(45, 0);
         Write($"P.Shoot:{players[0].gun.bullets.Count} / {players[0].gun.bulletAmount} | G.Shoot:{bullets.Count}");
@@ -162,8 +174,12 @@ public static class Game
         {
             for (int i = 0; i < bullets.Count; i++)
             {
-                SetCursorPosition(bullets[i].posX, bullets[i].posY);
-                Write(bullets[i].gfx);
+                if (bullets[i].isExploded) bullets.RemoveAt(i);
+                else
+                {
+                    SetCursorPosition(bullets[i].posX, bullets[i].posY);
+                    Write(bullets[i].gfx);
+                }
             }
         }
     }
@@ -216,7 +232,7 @@ public static class Game
                 Write(charGfxBottomB);
             }
         }
-        // Magic Trick to avoid ReadKey() input render inside near char
+        // Magic Trick to avoid ReadKey() input render inside near char | Used as debug input info
         SetCursorPosition(96, 0);
         Write($"Input: ");
     }

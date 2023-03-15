@@ -10,8 +10,8 @@ public class Gun
     public Entity? owner;   // Gun owner
 
     // Gun Setup
-    public int maxBullets = 5;        // Max sontemporary bullets count
-    public int bulletSpeed = 16;      // 16 | Milliseconds between bullets movement
+    public int maxBullets = 5;        // Max contemporary bullets count
+    public int bulletSpeed = 30;      // 16 | Milliseconds between bullets movement
     public int shootDelay = 5;        // Milliseconds between bullets shoot
     public string bulletGfx = "|";
 
@@ -40,8 +40,8 @@ public class Gun
                                else
                                {
                                    NewExplosion(bullets[i].posX, bullets[i].posY);
+                                   bullets[i].isExploded = true;
                                    bullets.RemoveAt(i);
-                                   ShootManager.bullets.Remove(bullets[i]);
                                }
                            }
                        }
@@ -61,7 +61,7 @@ public class Gun
             bullets.Add(newBullet);
             ShootManager.bullets.Add(newBullet);
             // Reset shooting capability 
-            //canShoot = false;
+            canShoot = false;
             shootTimer = 0;
             // Debug Log
             SetCursorPosition(0, 2);

@@ -4,18 +4,14 @@ using static UiTools;
 
 public static class ShootManager
 {
-    // Bullet Setup // ! Move to Bullet class
-    public static string shootGfx = "|";
+    // Explosion Setup
     public static string explosionGfxStart = "+";
     public static string explosionGfxEnd = "X";
-
-    
-    // Explosion Setup
     public const int explosionDelay = 5;        // Explosion first animation phase duration
     public const int explosionDuration = 12;    // Explosion total effect duration
     public const int explosionRefresh = 20;     // Explosion Status Refresh Rate
 
-    // ? Move to Explosion class | Maybe later
+    // TODO Move to Explosion class | Maybe later ???
     public struct Explosion
     {
         public int posX;
@@ -29,8 +25,7 @@ public static class ShootManager
     // Global Explosion List
     public static List<Explosion> explosions = new List<Explosion>();
 
-    // === TASKS & LOOPS
-    
+    // === ASYNCH TASK LOOP
     public static void ExplosionsHandler()
     {
         Task.Run(async () =>
@@ -44,7 +39,8 @@ public static class ShootManager
                                if (explosions[i].explosionTimer < explosionDuration)
                                {
                                    int newTimer = explosions[i].explosionTimer + 1;
-
+                                   
+                                   // Update Explosion Struct
                                    Explosion updatedExplosion = new Explosion
                                    {
                                        posX = explosions[i].posX,
