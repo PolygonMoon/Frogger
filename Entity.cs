@@ -1,4 +1,8 @@
-
+public struct Direction
+{
+    public int x;
+    public int y;
+}
 
 
 public class Entity
@@ -6,20 +10,28 @@ public class Entity
     // Entity Status
     public int posX;
     public int posY;
+    public Direction direction;
+
+    // Collision status
     Entity collision;
-    int[] direction = new int[2];
+
+    // Tiles Status
     public Tile[,] tiles;
 
+    // Spawn Setup  // ! Not needed ??? | Directly use posX,posY within spawn method
+    public int spawnX;
+    public int spawnY;
+
     // Entity Setup
-    int hpMax;
+    int hpMax;      // ! Not Needed ??? | Hp is manage by single tiles | USE AS BRIDGE ONLY -> pass the value to tiles
+    int moveDelay;
     public EntityType entityType;
     public MoveType moveType;
-    int moveDelay;
-
     bool haveCollision;
     bool canExplode;
     bool isBreakable;
-    Gun? gun;
+    public Gun gun = new Gun();
+
     // Gfx Setup
     public int lenghtX;
     public int lenghtY;
@@ -29,10 +41,11 @@ public class Entity
     // === ENUMS
     public enum EntityType
     {
-        Wall,       // Used by Wall
-        Walkable,   // Used by Sidewalks
-        Enemy,      // Used by Enemy & Bullet & Car
-        Player,     // Used by Player   
+        Wall,       // Used by Wall & Car   | Player can touch it without die | Block the movement collision check
+        Walkable,   // Used by Sidewalks    | Anything can walk over
+        Enemy,      // Used by Enemy & Car  | Kill Player if touched
+        Player,     // Used by Player       | *Player*
+        // ! Move Pickable to a new class?
         CoinUp,
         SpeedUp,
         AmmoUp,
@@ -74,10 +87,10 @@ public class Entity
         DefineDirection(entityType);
     }
 
-    public void Spawn(int[] spawnPosition, EntityType entityType, MoveType moveType)
+    public void Spawn(int x, int y, EntityType entityType, MoveType moveType)
     {
-        posX = spawnPosition[0];
-        posY = spawnPosition[1];
+        posX = x;
+        posY = y;
     }
 
     void DefineDirection(EntityType type)
@@ -85,16 +98,30 @@ public class Entity
         // TODO Setup direction by EntityType within a Switch case
     }
 
-    public void MovementHandler()
+    public void MoveEntity(Direction newDirection)
     {
         // TODO Start Task.Run with asynch moveDelay
 
-        collision = CheckCollision(direction);
-        if (collision == null) Move(); //! RE ADD Move(direction)
+        collision = CheckCollision(newDirection);
+        //
+        if (collision == null)
+        {
+            // Move Entity  // ! Evaluate to struct Position x y instead of separate int
+            posX += newDirection.x;
+            posY += newDirection.y;
+            // Move Tiles
+            for (int x = 0; x < tiles.GetLength(0); x++)
+            {
+                for (int y = 0; y < tiles.GetLength(1); y++)
+                {
+                    tiles[x, y].Move(newDirection);
+                }
+            }
+        }
         else CollisionHandler(collision);
     }
 
-    Entity CheckCollision(int[] direction)
+    Entity CheckCollision(Direction newDirection)
     {
         // if map next tile by actual tile + direction != null -> Collision
 
@@ -112,20 +139,6 @@ public class Entity
         // if collision(Entity) != null
         // switch (EntityType)  
         // different behaviour by EntityType|CollisionType
-    }
-
-    public void Move() // ! temp remove (int[] direction)
-    {
-        // ! Move each tile of the Entity by direction
-        // foreach tiles move by direction
-
-        for (int x = 0; x < tiles.GetLength(0); x++)
-        {
-            for (int y = 0; y < tiles.GetLength(1); y++)
-            {
-                tiles[x, y].posX -= 1;
-            }
-        }
     }
 
     void Die()

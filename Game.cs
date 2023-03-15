@@ -1,5 +1,6 @@
 using static System.Console;
 using System.Threading.Tasks;
+using static InputManager;
 using static ShootManager;
 using static UiTools;
 
@@ -7,20 +8,20 @@ public static class Game
 {
     // = CharStatus // ! Move to Entity.cs 
     // TODO int playerScore;    // Move to Score.cs
-    static int charPosX;
-    static int charPosY;
-    static bool isMoving = false;
-    static bool canMove = true;
-    static int charLength;
+    public static int charPosX;
+    public static int charPosY;
+    public static int charLength;
+    public static int moveCounter = 0;      // Jump Counter
+
     // = Char GFX Setup
     static string charGfxTopA = @"\/^\/"; // * Pivot is on first left char
     static string charGfxBottomA = @"\\_//";
 
     static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
-    static string charGfxBottomB = @"-\_/-";
+    static string charGfxBottomB = @"/\_/\";
 
     // = Entity Manager
-    public static Entity player = new Entity();
+    public static List<Entity> players = new List<Entity>();
     public static List<Entity> cars = new List<Entity>();
     public static List<Entity> enemies = new List<Entity>();
     public static List<Entity> trunks = new List<Entity>();
@@ -33,16 +34,16 @@ public static class Game
     // TODO int lifeMax = 4;
     static int currentLevelIndex;   // TODO Current Level Index to track current level 
     static int frame = 0;
-    static int inputCount = 0;      // Jump Counter
+
     static float frameRate;
     // = Game Setup
-    const int inputRefresh = 16;
-    const int inputDelay = 3;       // Pause between input detection | Also used to manage the Player movement speed
+    public const int inputRefresh = 16;
+    public const int inputDelay = 3;       // Pause between input detection | Also used to manage the Player movement speed
     const int renderDelay = 16;
-    static int inputTimer;
+    public static int inputTimer;
     // = Movement Setup
-    static int verticalRange;
-    static int horizontalRange;
+    public static int verticalRange = 2;
+    public static int horizontalRange = 2;
     // = Map Setup
     public static byte mapStartX = 0;
     public static byte mapStartY = 6;
@@ -53,103 +54,15 @@ public static class Game
     static public void GameStart()
     {
         GameInit();             // ! Move Map/Level stuff to MapInit();
-        //MapInit();            // ! Include LoadMap() here!
+        //MapInit();            // ! Include LoadMap() here!GunHandler();    
+        //EntityInit();         // 
+        //BulletHandlersInit(); // Foreach entity | if gun != null | BulleHandler();
         InputHandler();         // Async Loop - Handle Player Input
-        BulletHandler();        // Asynch Loop - Handle Shoots Movements
         ExplosionsHandler();    // Asynch Loop - Handle Explosions Animation
         Renderer();             // Main Loop - Handle Rendering Functions
     }
 
     // === TASKS & LOOPS
-    static void InputHandler()  // Detect and Handle Player Input
-    {
-        Task.Run(async () =>
-                {
-                    while (isRunning)
-                    {
-                        if (inputTimer < inputDelay) inputTimer++;
-                        if (inputTimer >= inputDelay) canMove = true;
-                        // ! Find a way to detect just one input at time (prevent hold spam) | Clean the buffer
-                        if (Console.KeyAvailable && !isMoving)
-                        {
-                            ConsoleKeyInfo input = Console.ReadKey();
-                            switch (input.Key)
-                            {
-                                case ConsoleKey.W:
-                                    if (charPosY > mapStartY && canMove)
-                                    {
-                                        charPosY -= verticalRange;
-                                        UpdateMoveState();
-
-                                        // ! for players[] each player Move(direction)
-                                    }
-                                    break;
-                                case ConsoleKey.S:
-                                    if (charPosY < mapStartY + mapLenghtY - 2 && canMove)
-                                    {
-                                        charPosY += verticalRange;
-                                        UpdateMoveState();
-                                    }
-                                    break;
-                                case ConsoleKey.A:
-                                    if (charPosX > 1 && canMove)
-                                    {
-                                        charPosX -= horizontalRange;
-                                        UpdateMoveState();
-
-                                        // ! TEMP TEST | shoulb me inside entityHandler ?
-                                        for (int i = 0; i < cars.Count; i++)
-                                        {
-                                            cars[i].Move();
-                                        }
-                                    }
-                                    break;
-                                case ConsoleKey.D:
-                                    if (charPosX < mapLenghtX + mapStartX - charLength && canMove)
-                                    {
-                                        charPosX += horizontalRange;
-                                        UpdateMoveState();
-                                    }
-                                    break;
-                                case ConsoleKey.Spacebar:
-                                    if (charPosY > mapStartY && ShootManager.canShoot) NewBullet(charPosX + 2, charPosY - 1, true);
-                                    break;
-                                case ConsoleKey.Escape:
-                                    isRunning = false;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        // Clear the input buffer if input is not being processed within the switch cases
-                        else if (Console.KeyAvailable)
-                        {
-                            Console.ReadKey(true); // Read the key to remove it from the input buffer
-                        }
-                        await Task.Delay(inputRefresh);
-                    }
-                });
-    }
-
-    static void UpdateMoveState()
-    {
-        canMove = false;
-        isMoving = true;
-        inputTimer = 0;
-        inputCount++;
-        JumpAnimation();
-    }
-    static void JumpAnimation()
-    {
-        Task.Run(async () =>
-               {
-                   Thread.Sleep(120);
-                   isMoving = false;
-                   await Task.Delay(1);
-                   return;
-               });
-    }
-
     static void Renderer()  // Rendering Loops
     {
         while (isRunning)
@@ -158,7 +71,8 @@ public static class Game
             Clear();
             UiRenderer();
             //MapRenderer();
-            ShootsRenderer(); // ! Need separate Renderer for each Gun istance | due to different bullet speed
+            BulletsRenderer();
+            ExplosionsRenderer();
             EntitiesRenderer();
             PlayerRenderer();
             // CollisionCheck();
@@ -169,7 +83,9 @@ public static class Game
     // === METHODS
     static void GameInit()
     {
-        frameRate = (1.0f / renderDelay) * 1000f;
+        // System Init
+        frameRate = (1.0f / renderDelay) * 1000f;   // Calculate the Frame Rate
+        inputTimer = inputDelay;                    // Enable istant player input availability 
 
         // =============== MAP INIT
         // Map Setup
@@ -178,40 +94,36 @@ public static class Game
         mapLenghtX = (byte)(byte)((WindowWidth - mapStartX) - 1);
         mapLenghtY = (byte)(WindowHeight - mapStartY);
 
-        // == TEST == Entity Setup
-        // Spawn Position Setup
-        int[] spawnPosition = new int[2];
-        spawnPosition[0] = mapLenghtX / 2;
-        spawnPosition[1] = mapLenghtY / 2;
-        // Instantiate new Entity
+        // === ENTITIES SETUP
+        // Setup First Player
+        charLength = charGfxBottomA.Length;
+        Entity player = new Entity();
+        player.spawnX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1;
+        player.spawnY = mapStartY + mapLenghtY - 2;
+        player.Spawn(player.spawnX, player.spawnY, Entity.EntityType.Enemy, Entity.MoveType.Left);
+        player.Init();
+        player.gun = new Gun();
+        player.gun.owner = player;
+        players.Add(player);
+        player.gun.BulletHandler();
+
+
+        // Setup Car
         Entity car = new Entity();
-        car.Spawn(spawnPosition, Entity.EntityType.Enemy, Entity.MoveType.Left);
+        car.Spawn(mapLenghtX / 2, mapLenghtY / 2, Entity.EntityType.Enemy, Entity.MoveType.Left);
         car.Init();
 
         cars.Add(car);
-
-
-        // Player Setup
-        charLength = charGfxBottomA.Length;
-        // TODO Use SpawnPlayer()
-        charPosX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1;
-        charPosY = mapStartY + mapLenghtY - 2;
-        // ===========================
-
-        // Movement Rules Setup
-        verticalRange = 2;
-        horizontalRange = 2;
-        inputTimer = inputDelay;
     }
 
-    // == RENDERING
+    // === RENDERING
     static void UiRenderer()
     {
         // Debug UI Render
         SetCursorPosition(0, 0);
         Write($"FRAME: {frame}");
         SetCursorPosition(0, 1);
-        Write($"Jump Counter: {inputCount}");
+        Write($"Jump Counter: {moveCounter}");
 
         SetCursorPosition(20, 0);
         Write($"Rendering FPS: {frameRate.ToString("0.00")}");
@@ -219,26 +131,31 @@ public static class Game
         Write($"InputTimer:{inputTimer} / {inputDelay} | {canMove}");
 
         SetCursorPosition(45, 0);
-        Write($"Shoot Count:{bullets.Count} / {maxBullets}");
+        Write($"P.Shoot:{players[0].gun.bullets.Count} / {players[0].gun.bulletAmount} | G.Shoot:{bullets.Count}");
         SetCursorPosition(45, 1);
-        Write($"Shoot Timer:{shootTimer} / {shootDelay} | {canShoot}");
+        Write($"P.Shoot Timer:{players[0].gun.shootTimer} / {players[0].gun.shootDelay} | {players[0].gun.canShoot}");
 
         SetCursorPosition(75, 0);
-        Write($"Explosion Count:{explosions.Count}");
+        Write($"G.Explosion Count:{explosions.Count}");
 
         SetCursorPosition(0, 3);
-        if (bullets.Count > 0) WriteLine("Rendering Shoots");
+        if (bullets.Count > 0) WriteLine("Rendering Bullets");
         SetCursorPosition(20, 3);
         if (explosions.Count > 0) WriteLine("Rendering Explosions");
 
-        DrawLineH(0, WindowWidth, mapStartY - 2, "_");  // Draw Line at Debug Panel Bottom
+        // Debug Player Position
+        SetCursorPosition(0, mapLenghtY + mapStartY - 1);
+        Write($"X: {players[0].posX} | Y: {players[0].posY}");
+        Write($"|===| MapLimit X: {mapStartX},{mapLenghtX + mapStartX} | Y: {mapStartY},{mapLenghtY + mapStartY}");
+
+        DrawLineH(0, WindowWidth, mapStartY - 1, "_");              // Draw Line for Debug Panel (Upper)
 
         // ! Avoid due to performance issue
         //DrawBoxEmpty(mapStartX, mapLenghtX, mapStartY, mapLenghtY); // Draw Map Border
         //DrawBox(10,20,5,10, "X"); // Test Box Draw
     }
 
-    static void ShootsRenderer()
+    static void BulletsRenderer()
     {
         // Shoots rendering
         if (bullets.Count > 0)
@@ -246,10 +163,14 @@ public static class Game
             for (int i = 0; i < bullets.Count; i++)
             {
                 SetCursorPosition(bullets[i].posX, bullets[i].posY);
-                Write(shootGfx);
+                Write(bullets[i].gfx);
             }
         }
-        // Explosions rendering // ! Move to a separate static ExplosionRenderer() in Game.cs | manage all the explosion
+    }
+
+    static void ExplosionsRenderer()
+    {
+        // Explosions rendering
         if (explosions.Count > 0)
         {
             for (int i = 0; i < explosions.Count; i++)
@@ -277,20 +198,23 @@ public static class Game
 
     static void PlayerRenderer()
     {
-        // Draw player
-        if (!isMoving)
+        for (int i = 0; i < players.Count; i++)
         {
-            SetCursorPosition(charPosX, charPosY);
-            Write(charGfxTopA);
-            SetCursorPosition(charPosX, charPosY + 1);
-            Write(charGfxBottomA);
-        }
-        else
-        {
-            SetCursorPosition(charPosX, charPosY);
-            Write(charGfxTopB);
-            SetCursorPosition(charPosX, charPosY + 1);
-            Write(charGfxBottomB);
+            // Draw player
+            if (!isMoving)
+            {
+                SetCursorPosition(players[i].posX, players[i].posY);
+                Write(charGfxTopA);
+                SetCursorPosition(players[i].posX, players[i].posY + 1);
+                Write(charGfxBottomA);
+            }
+            else
+            {
+                SetCursorPosition(players[i].posX, players[i].posY);
+                Write(charGfxTopB);
+                SetCursorPosition(players[i].posX, players[i].posY + 1);
+                Write(charGfxBottomB);
+            }
         }
         // Magic Trick to avoid ReadKey() input render inside near char
         SetCursorPosition(96, 0);
