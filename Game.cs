@@ -69,7 +69,7 @@ public static class Game
                     {
                         if (inputTimer < inputDelay) inputTimer++;
                         if (inputTimer >= inputDelay) canMove = true;
-                        // ! Find a way to detect just one input at time (prevent hold spam)
+                        // ! Find a way to detect just one input at time (prevent hold spam) | Clean the buffer
                         if (Console.KeyAvailable && !isMoving)
                         {
                             ConsoleKeyInfo input = Console.ReadKey();
@@ -79,21 +79,23 @@ public static class Game
                                     if (charPosY > mapStartY && canMove)
                                     {
                                         charPosY -= verticalRange;
-                                        UpdateInput();
+                                        UpdateMoveState();
+
+                                        // ! for players[] each player Move(direction)
                                     }
                                     break;
                                 case ConsoleKey.S:
                                     if (charPosY < mapStartY + mapLenghtY - 2 && canMove)
                                     {
                                         charPosY += verticalRange;
-                                        UpdateInput();
+                                        UpdateMoveState();
                                     }
                                     break;
                                 case ConsoleKey.A:
                                     if (charPosX > 1 && canMove)
                                     {
                                         charPosX -= horizontalRange;
-                                        UpdateInput();
+                                        UpdateMoveState();
 
                                         // ! TEMP TEST | shoulb me inside entityHandler ?
                                         for (int i = 0; i < cars.Count; i++)
@@ -106,7 +108,7 @@ public static class Game
                                     if (charPosX < mapLenghtX + mapStartX - charLength && canMove)
                                     {
                                         charPosX += horizontalRange;
-                                        UpdateInput();
+                                        UpdateMoveState();
                                     }
                                     break;
                                 case ConsoleKey.Spacebar:
@@ -129,7 +131,7 @@ public static class Game
                 });
     }
 
-    static void UpdateInput()
+    static void UpdateMoveState()
     {
         canMove = false;
         isMoving = true;
@@ -269,6 +271,8 @@ public static class Game
                 Write(tile.gfx);
             }
         }
+        // ! Add different for loops to render Cars, Trunk, Enemy, Coins, PowerUp etc
+
     }
 
     static void PlayerRenderer()
@@ -291,7 +295,5 @@ public static class Game
         // Magic Trick to avoid ReadKey() input render inside near char
         SetCursorPosition(96, 0);
         Write($"Input: ");
-
-        // ! Add different for loops to render Cars, Trunk, Enemy, Coins, PowerUp etc
     }
 }

@@ -107,14 +107,17 @@ public class Entity
     void CollisionHandler(Entity collisionEntity)
     {
         // Select action by typw Switch case and do Action
+
+        // Foreach tile in tiles collision = CheckCollision(direction)    <- return Entity
+        // if collision(Entity) != null
+        // switch (EntityType)  
+        // different behaviour by EntityType|CollisionType
     }
 
     public void Move() // ! temp remove (int[] direction)
     {
         // ! Move each tile of the Entity by direction
         // foreach tiles move by direction
-
-
 
         for (int x = 0; x < tiles.GetLength(0); x++)
         {
@@ -125,14 +128,9 @@ public class Entity
         }
     }
 
-    void Explode()
+    void Die()
     {
-
-    }
-
-    void DealDamage(int damage) // ! damage value from gun
-    {
-
+        // Simply Destroy the entity | Tiles death, damage and explosion are managed in Tile class
     }
 
 
