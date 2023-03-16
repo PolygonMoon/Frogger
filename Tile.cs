@@ -6,7 +6,7 @@ public class Tile
     int hp;
     public int posX;
     public int posY;
-    public string gfx = "O";
+    public char gfx = 'O';
     Entity collision;
 
 

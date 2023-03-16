@@ -2,44 +2,43 @@ using static System.Console;
 using System.Threading.Tasks;
 using static InputManager;
 using static ShootManager;
+using static Renderer;
 using static UiTools;
 
 public static class Game
 {
-    // = CharStatus // ! Move to Entity.cs 
-    // TODO int playerScore;    // Move to Score.cs
-    public static int charPosX;
-    public static int charPosY;
+    // = Player Status // ! Move to Entity.cs 
+    public static int lifeCount;        // TODO lifeCount-- when all player Entity dies
+    public static int lifeMax = 4;      // TODO Overide the value from Map.lifeMax
+    // TODO int playerScore;    // Move to Score.cs ??
+    public static int moveCounter = 0;  // Jump Counter
+
+    // = Player GFX Setup   // * Players Gfx and Rendering is managed as ecxeption | Do not use norma Entity behaviour 
     public static int charLength;
-    public static int moveCounter = 0;      // Jump Counter
-
-    // = Char GFX Setup
-    static string charGfxTopA = @"\/^\/"; // * Pivot is on first left char
-    static string charGfxBottomA = @"\\_//";
-
-    static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
-    static string charGfxBottomB = @"/\_/\";
+    // Top String
+    public static string charGfxTopA = @"\/^\/"; // * Pivot is on first left char
+    public static string charGfxBottomA = @"\\_//";
+    // Bottom String
+    public static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
+    public static string charGfxBottomB = @"/\_/\";
 
     // = Entity Manager
     public static List<Entity> players = new List<Entity>();
+    public static List<Entity> entities = new List<Entity>();   // Temp, contain all entities
     public static List<Entity> cars = new List<Entity>();
     public static List<Entity> enemies = new List<Entity>();
     public static List<Entity> trunks = new List<Entity>();
+    // ? Use a single Pickable entities List? (Coins, PowerUp, LifeUp, Etc...)
     public static List<Entity> coins = new List<Entity>();
     public static List<Entity> powerUps = new List<Entity>();
 
     // = Game Status
     public static bool isRunning = true;
-    // TODO int lifeCount;
-    // TODO int lifeMax = 4;
     static int currentLevelIndex;   // TODO Current Level Index to track current level 
-    static int frame = 0;
 
-    static float frameRate;
     // = Game Setup
     public const int inputRefresh = 16;
     public const int inputDelay = 3;       // Pause between input detection | Also used to manage the Player movement speed
-    const int renderDelay = 16;
     public static int inputTimer;
     // = Movement Setup
     public static int verticalRange = 2;
@@ -58,32 +57,14 @@ public static class Game
         //EntityInit();         // 
         InputHandler();         // Async Loop - Handle Player Input
         ExplosionsHandler();    // Asynch Loop - Handle Explosions Animation
-        Renderer();             // Main Loop - Handle Rendering Functions
-    }
-
-    // === TASKS & LOOPS
-    static void Renderer()  // Rendering Loops
-    {
-        while (isRunning)
-        {
-            frame++;
-            Clear();
-            UiRenderer();
-            //MapRenderer();
-            BulletsRenderer();
-            ExplosionsRenderer();
-            EntitiesRenderer();
-            PlayerRenderer();
-            // CollisionCheck();
-            Thread.Sleep(renderDelay);
-        }
+        RenderLoop();             // Main Loop - Handle Rendering Functions
     }
 
     // === METHODS
     static void GameInit()
     {
         // System Init
-        frameRate = (1.0f / renderDelay) * 1000f;   // Calculate the Frame Rate
+        Renderer.CalculateFrameRate();              // Calculate the Frame Rate
         inputTimer = inputDelay;                    // Enable istant player input availability 
 
         // =============== MAP INIT
@@ -92,12 +73,16 @@ public static class Game
         // ! LoadMap(index);  // From Map.cs
         mapLenghtX = (byte)(byte)((WindowWidth - mapStartX) - 1);
         mapLenghtY = (byte)(WindowHeight - mapStartY);
+    }
 
-        // === ENTITIES SETUP
+    // === ENTITIES SETUP
+    static void EntityInit()
+    {
         // ! Add NewPlayerInit() | OR CHECK CONSTRUCTOR TO CREATE ISTANT QUICKLY
         // Setup First Player
         charLength = charGfxBottomA.Length;
         Entity player = new Entity();
+        player.name = "Player_0";
         player.spawnX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1;
         player.spawnY = mapStartY + mapLenghtY - 2;
         player.Spawn(player.spawnX, player.spawnY, Entity.EntityType.Enemy, Entity.MoveType.Left);
@@ -109,9 +94,10 @@ public static class Game
 
         // Setup First Player
         charLength = charGfxBottomA.Length;
+        player.name = "Player_1";
         Entity player2 = new Entity();
         player2.spawnX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1 + 20;
-        player2.spawnY = mapStartY + mapLenghtY - 2;
+        player2.spawnY = mapStartY + mapLenghtY - 2 - 6;
         player2.Spawn(player2.spawnX, player2.spawnY, Entity.EntityType.Enemy, Entity.MoveType.Left);
         player2.Init();
         player2.gun = new Gun();
@@ -122,118 +108,17 @@ public static class Game
 
         // Setup Car
         Entity car = new Entity();
+        car.name = "Car_0";
         car.Spawn(mapLenghtX / 2, mapLenghtY / 2, Entity.EntityType.Enemy, Entity.MoveType.Left);
         car.Init();
-
         cars.Add(car);
+
+        Entity car2 = new Entity();
+        car2.name = "Car_2";
+        car2.Spawn(mapLenghtX / 2 - 20, mapLenghtY / 2 - 6, Entity.EntityType.Enemy, Entity.MoveType.Left);
+        car2.Init();
+        cars.Add(car2);
     }
 
-    // === RENDERING
-    static void UiRenderer()
-    {
-        // Debug UI Render
-        SetCursorPosition(0, 0);
-        Write($"FRAME: {frame}");
-        SetCursorPosition(0, 1);
-        Write($"Jump Counter: {moveCounter}");
 
-        SetCursorPosition(20, 0);
-        Write($"Rendering FPS: {frameRate.ToString("0.00")}");
-        SetCursorPosition(20, 1);
-        Write($"InputTimer:{inputTimer} / {inputDelay} | {inputReady}");
-
-        SetCursorPosition(45, 0);
-        Write($"P.Shoot:{players[0].gun.bullets.Count} / {players[0].gun.bulletAmount} | G.Shoot:{bullets.Count}");
-        SetCursorPosition(45, 1);
-        Write($"P.Shoot Timer:{players[0].gun.shootTimer} / {players[0].gun.shootDelay} | {players[0].gun.canShoot}");
-
-        SetCursorPosition(75, 0);
-        Write($"G.Explosion Count:{explosions.Count}");
-
-        SetCursorPosition(0, 3);
-        if (bullets.Count > 0) WriteLine("Rendering Bullets");
-        SetCursorPosition(20, 3);
-        if (explosions.Count > 0) WriteLine("Rendering Explosions");
-
-        // Debug Player Position
-        SetCursorPosition(0, mapLenghtY + mapStartY - 1);
-        Write($"X: {players[0].posX} | Y: {players[0].posY}");
-        Write($"|===| MapLimit X: {mapStartX},{mapLenghtX + mapStartX} | Y: {mapStartY},{mapLenghtY + mapStartY}");
-
-        DrawLineH(0, WindowWidth, mapStartY - 1, "_");              // Draw Line for Debug Panel (Upper)
-
-        // ! Avoid due to performance issue
-        //DrawBoxEmpty(mapStartX, mapLenghtX, mapStartY, mapLenghtY); // Draw Map Border
-        //DrawBox(10,20,5,10, "X"); // Test Box Draw
-    }
-
-    static void BulletsRenderer()
-    {
-        // Shoots rendering
-        if (bullets.Count > 0)
-        {
-            for (int i = 0; i < bullets.Count; i++)
-            {
-                if (bullets[i].isExploded) bullets.RemoveAt(i);
-                else
-                {
-                    SetCursorPosition(bullets[i].posX, bullets[i].posY);
-                    Write(bullets[i].gfx);
-                }
-            }
-        }
-    }
-
-    static void ExplosionsRenderer()
-    {
-        // Explosions rendering
-        if (explosions.Count > 0)
-        {
-            for (int i = 0; i < explosions.Count; i++)
-            {
-                SetCursorPosition(explosions[i].posX, explosions[i].posY);
-                if (!explosions[i].isExploded) Write(explosionGfxStart);
-                else Write(explosionGfxEnd);
-            }
-        }
-    }
-
-    static void EntitiesRenderer()
-    {
-        for (int i = 0; i < cars.Count; i++)
-        {
-            foreach (var tile in cars[i].tiles)
-            {
-                SetCursorPosition(tile.posX, tile.posY);
-                Write(tile.gfx);
-            }
-        }
-        // ! Add different for loops to render Cars, Trunk, Enemy, Coins, PowerUp etc
-
-    }
-
-    static void PlayerRenderer()
-    {
-        for (int i = 0; i < players.Count; i++)
-        {
-            // Draw player
-            if (!isMoving)
-            {
-                SetCursorPosition(players[i].posX, players[i].posY);
-                Write(charGfxTopA);
-                SetCursorPosition(players[i].posX, players[i].posY + 1);
-                Write(charGfxBottomA);
-            }
-            else
-            {
-                SetCursorPosition(players[i].posX, players[i].posY);
-                Write(charGfxTopB);
-                SetCursorPosition(players[i].posX, players[i].posY + 1);
-                Write(charGfxBottomB);
-            }
-        }
-        // Magic Trick to avoid ReadKey() input render inside near char | Used as debug input info
-        SetCursorPosition(96, 0);
-        Write($"Input: ");
-    }
 }

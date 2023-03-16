@@ -23,6 +23,7 @@ public class Entity
     public int spawnY;
 
     // Entity Setup
+    public string name = "default entity name";
     int hpMax;      // ! Not Needed ??? | Hp is manage by single tiles | USE AS BRIDGE ONLY -> pass the value to tiles
     int moveDelay;
     public EntityType entityType;
@@ -37,6 +38,10 @@ public class Entity
     public int lenghtY;
     public string GfxTop = "XXX";
     public string GfxBottom = "XXX";
+    public char[,] Gfx = {
+         {'A', 'A', 'A'},
+         {'A', 'A', 'A'}
+    };
 
     // === ENUMS
     public enum EntityType
@@ -65,11 +70,11 @@ public class Entity
     public void Init()
     {
         // TODO Move to TilesInit
-        lenghtX = GfxTop.Length;
-        lenghtY = 2;
+        lenghtX = Gfx.GetLength(1);
+        lenghtY = Gfx.GetLength(0);
         tiles = new Tile[lenghtX, lenghtY];
-        Console.WriteLine($"Tiles Array {tiles}");
-        Console.WriteLine($"X {tiles.GetLength(0)}, Y {tiles.GetLength(1)}");
+        Console.WriteLine($"Entity name: {name} | Tiles array length {tiles}");
+        Console.WriteLine($"X: {tiles.GetLength(0)} | Y: {tiles.GetLength(1)}");
         Console.ReadKey();
         // for loop | assign tile in tiles by reading gfx string
 
@@ -79,7 +84,7 @@ public class Entity
             for (int y = 0; y < tiles.GetLength(1); y++)
             {
                 Tile newTile = new Tile();
-                newTile.gfx = "X";  // ! Need read the gfx values from the entity gfx and pass it to each Tile
+                newTile.gfx = 'X';  // ! Need read the gfx values from the entity gfx and pass it to each Tile
                 newTile.posX = posX + x;
                 newTile.posY = posY + y;
                 tiles[x, y] = newTile;
