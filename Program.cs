@@ -17,18 +17,16 @@ string logoGfx = @"
 
 
 SystemInit();
-
 //TestCode();
-
 MainMenu();
 QuitApp();
-
 
 
 // === TEST CODE
 void TestCode()
 {
     WriteLine("=== Starting Test Code Space");
+    WriteLine("Test 2d array length reading");
     char[,] testArray = {
     {'x', 'x', 'x'},
     {'x', 'x', 'x'}
@@ -38,30 +36,30 @@ void TestCode()
     WriteLine(x);
     WriteLine(y);
 
-
-
     WriteLine("=== Test Code Space Ended | Press a key to continue . . .");
     ReadKey();
 }
 
 // === METHODS
+void SystemInit()
+{
+    Console.CursorVisible = false;
+}
+
 void MainMenu()
 {
-    // Logo Init
+    // ! MAIN MENU TEMP PLACEHOLDER
     // TODO check logo length + screen length and calculate the offset from the center
     Clear();
     Console.Title = "▓▒░ FROGGER SHOOTER ░▒▓ V.03";
     SetCursorPosition(0, 2);
     WriteLine(logoGfx);
+
     SetCursorPosition(35, 16);
     WriteLine("Press any key to |PLAY|");
-    ReadKey();
-    Game.GameStart();
-}
 
-void SystemInit()
-{
-    Console.CursorVisible = false;
+    ReadKey();
+    Game.GameStart(); 
 }
 
 void QuitApp()

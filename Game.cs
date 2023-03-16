@@ -1,19 +1,20 @@
 using static System.Console;
 using System.Threading.Tasks;
 using static InputManager;
+using static EntityManager;
 using static ShootManager;
 using static Renderer;
 using static UiTools;
 
 public static class Game
 {
-    // = Player Status // ! Move to Entity.cs 
+    // = Player Status // * Extra Player Status is managed as ecxeption | Do not use normal Entity behaviour
     public static int lifeCount;        // TODO lifeCount-- when all player Entity dies
-    public static int lifeMax = 4;      // TODO Overide the value from Map.lifeMax
+    public static int lifeMax = 4;      // TODO Overide the value from Map.lifeAmount
     // TODO int playerScore;    // Move to Score.cs ??
     public static int moveCounter = 0;  // Jump Counter
 
-    // = Player GFX Setup   // * Players Gfx and Rendering is managed as ecxeption | Do not use norma Entity behaviour 
+    // = Player GFX Setup   // * Players Gfx and Rendering is managed as ecxeption | Do not use normal Entity behaviour 
     public static int charLength;
     // Top String
     public static string charGfxTopA = @"\/^\/"; // * Pivot is on first left char
@@ -21,16 +22,6 @@ public static class Game
     // Bottom String
     public static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
     public static string charGfxBottomB = @"/\_/\";
-
-    // = Entity Manager
-    public static List<Entity> players = new List<Entity>();
-    public static List<Entity> entities = new List<Entity>();   // Temp, contain all entities
-    public static List<Entity> cars = new List<Entity>();
-    public static List<Entity> enemies = new List<Entity>();
-    public static List<Entity> trunks = new List<Entity>();
-    // ? Use a single Pickable entities List? (Coins, PowerUp, LifeUp, Etc...)
-    public static List<Entity> coins = new List<Entity>();
-    public static List<Entity> powerUps = new List<Entity>();
 
     // = Game Status
     public static bool isRunning = true;
@@ -54,10 +45,11 @@ public static class Game
     {
         GameInit();             // ! Move Map/Level stuff to MapInit();
         //MapInit();            // ! Include LoadMap() here!GunHandler();    
-        //EntityInit();         // 
-        InputHandler();         // Async Loop - Handle Player Input
-        ExplosionsHandler();    // Asynch Loop - Handle Explosions Animation
-        RenderLoop();             // Main Loop - Handle Rendering Functions
+        EntityInit();           // Entity Initializer
+        InputHandler();         // START - Async.Task Loop - Handle Player Input
+        ExplosionsHandler();    // START - Async.Task Loop - Handle Explosions Animation
+        MovementHandler();      // START - Async.Task Loop - EntityManager Brain | Manage Movements & Shooting
+        RenderLoop();           // START - while Main Loop - Handle Rendering Functions
     }
 
     // === METHODS
@@ -65,19 +57,26 @@ public static class Game
     {
         // System Init
         Renderer.CalculateFrameRate();              // Calculate the Frame Rate
+        EntityManager.CalculateBrainFrameRate();    // Calculate the Frame Rate of the Entity Manager Brain
         inputTimer = inputDelay;                    // Enable istant player input availability 
 
         // =============== MAP INIT
         // Map Setup
         // TODO (if actualLevelIndex == 0) LoadMap(0);
         // ! LoadMap(index);  // From Map.cs
-        mapLenghtX = (byte)(byte)((WindowWidth - mapStartX) - 1);
+
+        // Set Map size by window size // TODO Try to force a fixed windows size
+        mapLenghtX = (byte)((WindowWidth - mapStartX) - 1); // Using -1 to avoid scroll bar
         mapLenghtY = (byte)(WindowHeight - mapStartY);
     }
 
-    // === ENTITIES SETUP
+    // === ENTITIES SETUP // ! TESTING PLACEHOLDER SOLUTION ! //
     static void EntityInit()
     {
+        // DEBUG LOG
+        WriteLine("|== DEBUG INFO ==|");
+        WriteLine("- Players Initialization");
+
         // ! Add NewPlayerInit() | OR CHECK CONSTRUCTOR TO CREATE ISTANT QUICKLY
         // Setup First Player
         charLength = charGfxBottomA.Length;
@@ -85,7 +84,7 @@ public static class Game
         player.name = "Player_0";
         player.spawnX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1;
         player.spawnY = mapStartY + mapLenghtY - 2;
-        player.Spawn(player.spawnX, player.spawnY, Entity.EntityType.Enemy, Entity.MoveType.Left);
+        player.Spawn(player.spawnX, player.spawnY, Entity.EntityType.Player, Entity.MoveType.Free, 1);
         player.Init();
         player.gun = new Gun();
         player.gun.owner = player;
@@ -98,26 +97,50 @@ public static class Game
         Entity player2 = new Entity();
         player2.spawnX = mapStartX + mapLenghtX / 2 - charLength / 2 - 1 + 20;
         player2.spawnY = mapStartY + mapLenghtY - 2 - 6;
-        player2.Spawn(player2.spawnX, player2.spawnY, Entity.EntityType.Enemy, Entity.MoveType.Left);
+        player2.Spawn(player2.spawnX, player2.spawnY, Entity.EntityType.Player, Entity.MoveType.Free, 1);
         player2.Init();
         player2.gun = new Gun();
         player2.gun.owner = player2;
         players.Add(player2);
         player2.gun.BulletHandler();
 
+        WriteLine("- Cars Initialization");
 
         // Setup Car
         Entity car = new Entity();
         car.name = "Car_0";
-        car.Spawn(mapLenghtX / 2, mapLenghtY / 2, Entity.EntityType.Enemy, Entity.MoveType.Left);
+        car.Spawn(mapLenghtX / 2, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Left, 1);
         car.Init();
         cars.Add(car);
+        entities.Add(car);
 
         Entity car2 = new Entity();
         car2.name = "Car_2";
-        car2.Spawn(mapLenghtX / 2 - 20, mapLenghtY / 2 - 6, Entity.EntityType.Enemy, Entity.MoveType.Left);
+        car2.Spawn(mapLenghtX / 2 - 20, mapStartY + 4, Entity.EntityType.Enemy, Entity.MoveType.Left, 14);
         car2.Init();
         cars.Add(car2);
+        entities.Add(car2);
+
+        Entity car3 = new Entity();
+        car3.name = "Car_3";
+        car3.Spawn(mapLenghtX / 2 - 20, mapStartY + 8, Entity.EntityType.Enemy, Entity.MoveType.Left, 2);
+        car3.Init();
+        cars.Add(car3);
+        entities.Add(car3);
+
+        Entity car4 = new Entity();
+        car4.name = "Car_4";
+        car4.Spawn(mapLenghtX - 30, mapStartY + 6, Entity.EntityType.Enemy, Entity.MoveType.Right, 1);
+        car4.Init();
+        cars.Add(car4);
+        entities.Add(car4);
+
+        Entity car5 = new Entity();
+        car5.name = "Car_5";
+        car5.Spawn(mapLenghtX - 10, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Down, 1);
+        car5.Init();
+        cars.Add(car5);
+        entities.Add(car5);
     }
 
 

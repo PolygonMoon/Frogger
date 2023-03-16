@@ -1,5 +1,7 @@
 using static Game;
+using static EntityManager;
 using static ShootManager;
+
 
 
 public static class InputManager
@@ -7,6 +9,7 @@ public static class InputManager
     // Player Input Status
     public static bool isMoving = false;
     public static bool inputReady = true;
+    public static bool recoveredFromJump = true;
 
     // === Input Handler Loops
     public static void InputHandler()  // Detect and Handle Player Input
@@ -20,7 +23,7 @@ public static class InputManager
                         if (inputTimer < inputDelay) inputTimer++;
                         if (inputTimer >= inputDelay) inputReady = true;
                         // ! Find a way to detect just one input at time (prevent hold spam) | Clean the buffer
-                        if (Console.KeyAvailable && !isMoving)
+                        if (Console.KeyAvailable && !isMoving && recoveredFromJump)
                         {
                             ConsoleKeyInfo input = Console.ReadKey();
                             switch (input.Key)
@@ -97,7 +100,7 @@ public static class InputManager
                                         for (int i = 0; i < players.Count; i++)
                                         {
                                             if (players[i].posY > mapStartY && players[i].gun.canShoot)
-                                            {   
+                                            {
                                                 players[i].gun.Shoot(players[i].posX + 2, players[i].posY - 1, players[i], true);
                                             }
                                         }
@@ -124,6 +127,7 @@ public static class InputManager
     {
         inputReady = false;
         isMoving = true;
+        recoveredFromJump = false;
         inputTimer = 0;
         moveCounter++;
         JumpAnimation();
@@ -134,6 +138,8 @@ public static class InputManager
                {
                    Thread.Sleep(120);
                    isMoving = false;
+                   Thread.Sleep(60);    // Extra Pause to movement immediatly after the animation end
+                   recoveredFromJump = true;
                    await Task.Delay(1);
                    return;
                });

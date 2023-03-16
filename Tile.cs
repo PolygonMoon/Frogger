@@ -1,4 +1,5 @@
-
+using static System.Console;
+using static Game;
 
 
 public class Tile
@@ -12,8 +13,15 @@ public class Tile
 
     public void Move(Direction newDirection)
     {
-        posX += newDirection.x;
-        posY += newDirection.y;
+        if (posX + newDirection.x >= mapStartX + mapLenghtX) posX = mapStartX;
+        else if (posX + newDirection.x < mapStartX) posX = mapStartX + mapLenghtX - 1;  // -1 is used to avoid scroll bar issues
+        if (posY + newDirection.y >= mapStartY + mapLenghtY) posY = mapStartY;
+        else if (posY + newDirection.y < mapStartY) posY = mapStartY + mapLenghtY - 1;  // -1 is used to avoid scroll bar issues
+        else
+        {
+            posX += newDirection.x;
+            posY += newDirection.y;
+        }
     }
 
     void DealDamage(int damage) // ! damage value from gun
