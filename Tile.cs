@@ -8,7 +8,9 @@ public class Tile
     public int posX;
     public int posY;
     public char gfx = 'O';
-    Entity collision;
+    Entity? collision;
+    Entity parent;
+    Entity.EntityType type; // ! Use this as owner type mirror?
 
 
     public void Move(Direction newDirection)
@@ -32,7 +34,7 @@ public class Tile
     void Explode()
     {
         // Start ExplosionVfx
-        // Destroy  | Remove tile from entity array?
+        // Destroy  | Remove tile from parent entity array?
 
         // If tiles.count entity.Destroy()
     }
