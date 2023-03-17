@@ -73,9 +73,21 @@ public class Entity
     }
 
     // === SETUP METHODS
-    public void Init()
+    // ! Remove EntityType & MoveType and try to build something similar to prefab concept?
+    public void Instantiate(int x, int y, EntityType newEntityType, MoveType newMoveType, int moveFps)
     {
-        // TODO Move to TilesInit
+        entityType = newEntityType;
+        moveType = newMoveType;
+        moveDelay = moveFps;
+        posX = x;
+        posY = y;
+
+        TilesInit();
+        DefineDirection(moveType);
+    }
+
+    public void TilesInit()
+    {
         lenghtX = gfx.GetLength(1);
         lenghtY = gfx.GetLength(0);
         tiles = new Tile[lenghtX, lenghtY];
@@ -85,27 +97,12 @@ public class Entity
             for (int y = 0; y < tiles.GetLength(1); y++)
             {
                 Tile newTile = new Tile();
-                newTile.gfx = gfx[y,x];     // Read gfx char array and write the value to new Tile char gfx
+                newTile.gfx = gfx[y, x];    // Read gfx char array and write the value to new Tile char gfx
                 newTile.posX = posX + x;    // Offset the Tile position by the x index value
                 newTile.posY = posY + y;    // Offset the Tile position by the y index value
                 tiles[x, y] = newTile;      // Copy the new Tile to the tiles Tile
             }
         }
-        DefineDirection(moveType);
-
-        // Initialization Debug Log
-        Console.WriteLine($"Entity name: {name} | Tiles array length {tiles} | Type: {entityType} | Move: {moveType} | Direction X:{direction.x}, Y:{direction.y}");
-        Console.WriteLine($"X: {tiles.GetLength(0)} | Y: {tiles.GetLength(1)} | BrainFps: {moveDelay}");
-        Console.ReadKey();
-    }
-
-    public void Spawn(int x, int y, EntityType newEntityType, MoveType newMoveType, int moveFps )
-    {
-        entityType = newEntityType;
-        moveType = newMoveType;
-        moveDelay = moveFps;
-        posX = x;
-        posY = y;
     }
 
     void DefineDirection(MoveType type)

@@ -32,7 +32,7 @@ public class Gun
                            for (int i = 0; i < bullets.Count; i++)
                            {
                                // Collision Detection
-                               if (bullets[i].posY > Game.mapStartY && bullets[i].posY < Game.mapLenghtY + Game.mapStartY) //! need -1?
+                               if (bullets[i].posY > Game.mapStartY && bullets[i].posY < Game.availableLenghtY + Game.mapStartY) //! need -1?
                                {
                                    if (bullets[i].isPlayer) { bullets[i].posY -= 1; }
                                    else bullets[i].posY += 1;

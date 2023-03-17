@@ -50,7 +50,7 @@ public static class InputManager
                                         for (int i = 0; i < players.Count; i++)
                                         {
                                             // Check Collision
-                                            if (players[i].posY < mapStartY + mapLenghtY - 2)
+                                            if (players[i].posY < mapStartY + availableLenghtY - 2)
                                             {
                                                 players[i].MoveEntity(inputDirection);
                                                 UpdateMoveState();
@@ -86,7 +86,7 @@ public static class InputManager
                                         for (int i = 0; i < players.Count; i++)
                                         {
                                             // Check Collision
-                                            if (players[i].posX < mapLenghtX + mapStartX - charLength)
+                                            if (players[i].posX < availableLenghtX + mapStartX - charLength)
                                             {
                                                 players[i].MoveEntity(inputDirection);
                                                 UpdateMoveState();

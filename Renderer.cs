@@ -73,9 +73,9 @@ public static class Renderer
         // SetCursorPosition(20, 4);    // ! This is used for debug by method call on enemy move event
 
         // Debug Player Position
-        SetCursorPosition(0, mapLenghtY + mapStartY - 1);
+        SetCursorPosition(0, availableLenghtY + mapStartY - 1);
         Write($"X: {players[0].posX} | Y: {players[0].posY}");
-        Write($"|===| MapLimit X: {mapStartX},{mapLenghtX + mapStartX} | Y: {mapStartY},{mapLenghtY + mapStartY}");
+        Write($"|===| MapLimit X: {mapStartX},{availableLenghtX + mapStartX} | Y: {mapStartY},{availableLenghtY + mapStartY}");
 
         DrawLineH(0, WindowWidth, mapStartY - 1, "_");              // Draw Line for Debug Panel (Upper)
 
