@@ -8,10 +8,9 @@ public class Tile
     public int posX;
     public int posY;
     public char gfx = 'O';
-    Entity? collision;
-    Entity parent;
-    Entity.EntityType type; // ! Use this as owner type mirror?
-
+    public Entity? collision;
+    public Entity parent; 
+    public Entity.EntityType tileType;         
 
     public void Move(Direction newDirection)
     {

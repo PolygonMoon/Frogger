@@ -90,6 +90,11 @@ public class Entity
     {
         lenghtX = gfx.GetLength(1);
         lenghtY = gfx.GetLength(0);
+        if (entityType == EntityType.Player)
+        {
+            lenghtX = charGfxA.GetLength(1);
+            lenghtY = charGfxA.GetLength(0);
+        }
         tiles = new Tile[lenghtX, lenghtY];
 
         for (int x = 0; x < tiles.GetLength(0); x++)
@@ -97,10 +102,16 @@ public class Entity
             for (int y = 0; y < tiles.GetLength(1); y++)
             {
                 Tile newTile = new Tile();
-                newTile.gfx = gfx[y, x];    // Read gfx char array and write the value to new Tile char gfx
-                newTile.posX = posX + x;    // Offset the Tile position by the x index value
-                newTile.posY = posY + y;    // Offset the Tile position by the y index value
-                tiles[x, y] = newTile;      // Copy the new Tile to the tiles Tile
+                newTile.parent = this;          // Set Tile Parent to this Entity
+                newTile.tileType = entityType;
+                // If type Player draw different Gfx
+                if (entityType == EntityType.Player) newTile.gfx = charGfxA[y, x];
+                else newTile.gfx = gfx[y, x];   // Read gfx char array and write the value to new Tile char gfx
+
+                newTile.posX = posX + x;        // Offset the Tile position by the x index value
+                newTile.posY = posY + y;        // Offset the Tile position by the y index value
+                tiles[x, y] = newTile;          // Copy the new Tile to the tiles Tile
+                mapInUse.SubscribeTile(newTile);
             }
         }
     }
@@ -131,41 +142,64 @@ public class Entity
     }
 
     // === RUN-TIME METHODS
-    public void MoveEntity(Direction newDirection)
+    public bool MoveEntity(Direction newDirection)
     {
-        // Move Entity  // ! Evaluate to struct Position x y instead of separate int
-        posX += newDirection.x;
-        posY += newDirection.y;
+        bool isMoveValid = false;
+        isMoveValid = CheckCollision(newDirection);
+        //isMoveValid = true;
+
         // Move Tiles
+        if (isMoveValid)
+        {
+            // Move Entity  // ! Evaluate to struct Position x y instead of separate int
+            if (posX + newDirection.x < availableLenghtX
+                && posY + newDirection.y < availableLenghtY
+                && posX + newDirection.x > mapStartX
+                && posY + newDirection.y > mapStartY)
+            posX += newDirection.x;
+            posY += newDirection.y;
+
+            // Iterate within each entity tiles an move it
+            for (int x = 0; x < tiles.GetLength(0); x++)
+            {
+                for (int y = 0; y < tiles.GetLength(1); y++)
+                {
+                    tiles[x, y].Move(newDirection);
+                }
+            }
+            canMove = false;    // Reset move capability
+            moveTimer = 0;      // Reset moveTimer Entity move
+            return true;
+        }
+        else return false;
+    }
+
+    bool CheckCollision(Direction newDirection)
+    {
+        // Check the next tile status for each tile in tiles by movemenet direction
         for (int x = 0; x < tiles.GetLength(0); x++)
         {
             for (int y = 0; y < tiles.GetLength(1); y++)
             {
-                tiles[x, y].Move(newDirection);
+                // ! NEED A FIX HERE, probably is not picking the right tile?
+                // TODO Add a fucking permanet debug print of the next nextTile.entityType
+                int tileXpos = tiles[x, y].posX;
+                int tileYpos = tiles[x, y].posY;
+                Tile nextTile = Map.tiles[tileXpos + newDirection.x - Game.mapStartX - 1, tileYpos + newDirection.y - Game.mapStartY - 1];
+
+                if (nextTile != null && nextTile.tileType != entityType) return false;
+                else
+                {
+                    // Collision Handler by Switch EntityType type
+                }
             }
         }
-        canMove = false;    // Reset move capability
-        moveTimer = 0;      // Reset moveTimer Entity move
-    }
-
-    Entity CheckCollision(Direction newDirection)
-    {
-        // if map next tile by actual tile + direction != null -> Collision
-
-        // else collisionEntity = null;
-        Entity? collisionEntity = null;
-
-        return collisionEntity;
+        return true;
     }
 
     void CollisionHandler(Entity collisionEntity)
     {
-        // Select action by typw Switch case and do Action
 
-        // Foreach tile in tiles collision = CheckCollision(direction)    <- return Entity
-        // if collision(Entity) != null
-        // switch (EntityType)  
-        // different behaviour by EntityType|CollisionType
     }
 
     void Die()

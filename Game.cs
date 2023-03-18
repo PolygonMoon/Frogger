@@ -19,9 +19,17 @@ public static class Game
     // Top String
     public static string charGfxTopA = @"\/^\/"; // * Pivot is on first left char
     public static string charGfxBottomA = @"\\_//";
+    public static char[,] charGfxA = {
+        {'F', '/', '^', 'F', '/'}, // ! Fix the F becuase \ broke the formatting
+        {'F', 'F', '_', '/', '/'}
+    };
     // Bottom String
     public static string charGfxTopB = @"|/*\|"; // * Pivot is on first left char
     public static string charGfxBottomB = @"/\_/\";
+    public static char[,] charGfxB = {
+         {'|', '/', '*', 'F', '|'}, // ! Fix the F becuase \ broke the formatting
+         {'/', 'F', '_', '/', 'F'}
+    };
 
     // = Game Status
     public static bool isRunning = true;
@@ -34,6 +42,10 @@ public static class Game
     // = Movement Setup
     public static int verticalRange = 2;
     public static int horizontalRange = 2;
+
+    // = Map Status
+    static public Map mapInUse = new Map();
+
     // = Map Setup
     public static byte mapStartX = 0;   // Manually chose map X start position
     public static byte mapStartY = 6;   // Manually chose map Y start position
@@ -44,7 +56,7 @@ public static class Game
     static public void GameStart()
     {
         GameInit();             // ! Move Map/Level stuff to MapInit();
-        //MapInit();            // ! Include LoadMap() here!GunHandler();    
+        MapInit();              // ! Include LoadMap() here!GunHandler();    
         EntityInit();           // Entity Initializer
         InputHandler();         // START - Async.Task Loop - Handle Player Input
         ExplosionsHandler();    // START - Async.Task Loop - Handle Explosions Animation
@@ -68,6 +80,11 @@ public static class Game
         // Set Map size by window size // TODO Try to force a fixed windows size
         availableLenghtX = (byte)((WindowWidth - mapStartX) - 1); // Using -1 to avoid scroll bar
         availableLenghtY = (byte)(WindowHeight - mapStartY);
+    }
+
+    static void MapInit()
+    {
+        mapInUse.MapInit(100, "New Map Name");
     }
 
     // === ENTITIES SETUP // ! TESTING PLACEHOLDER SOLUTION ! //
@@ -112,7 +129,7 @@ public static class Game
         // Setup Car
         Entity car = new Entity();
         car.name = "Car_0";
-        car.Instantiate(availableLenghtX / 2, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Left, 1);
+        car.Instantiate(availableLenghtX / 2, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Static, 1);
         cars.Add(car);
         entities.Add(car);
 

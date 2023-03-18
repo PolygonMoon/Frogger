@@ -37,8 +37,10 @@ public static class InputManager
                                             // Check Collision
                                             if (players[i].posY > mapStartY)
                                             {
-                                                players[i].MoveEntity(inputDirection);
-                                                UpdateMoveState();
+                                                if (players[i].MoveEntity(inputDirection))
+                                                {
+                                                    UpdateMoveState();
+                                                }
                                             }
                                         }
                                     }
@@ -52,8 +54,10 @@ public static class InputManager
                                             // Check Collision
                                             if (players[i].posY < mapStartY + availableLenghtY - 2)
                                             {
-                                                players[i].MoveEntity(inputDirection);
-                                                UpdateMoveState();
+                                                if (players[i].MoveEntity(inputDirection))
+                                                {
+                                                    UpdateMoveState();
+                                                }
                                             }
                                         }
                                     }
@@ -67,15 +71,11 @@ public static class InputManager
                                             // Check Collision
                                             if (players[i].posX > 1)
                                             {
-                                                players[i].MoveEntity(inputDirection);
-                                                UpdateMoveState();
+                                                if (players[i].MoveEntity(inputDirection))
+                                                {
+                                                    UpdateMoveState();
+                                                }
                                             }
-                                        }
-
-                                        // ! TEMP TEST | shoulb me inside entityHandler ?
-                                        for (int i = 0; i < cars.Count; i++)
-                                        {
-                                            cars[i].MoveEntity(cars[i].direction);
                                         }
                                     }
                                     break;
@@ -88,8 +88,10 @@ public static class InputManager
                                             // Check Collision
                                             if (players[i].posX < availableLenghtX + mapStartX - charLength)
                                             {
-                                                players[i].MoveEntity(inputDirection);
-                                                UpdateMoveState();
+                                                if (players[i].MoveEntity(inputDirection))
+                                                {
+                                                    UpdateMoveState();
+                                                }
                                             }
                                         }
                                     }

@@ -3,7 +3,7 @@ using static System.Console;
 public class Map
 {
     // Map Status
-    static Tile[,] tiles = new Tile[1, 1];
+    public static Tile[,] tiles = new Tile[1, 1];
 
     // Map Path
     public List<Path> paths = new List<Path>();
@@ -33,7 +33,7 @@ public class Map
         lenghtY = Game.availableLenghtY - 1;    // -1 is used to compensate tricks in other map size stuff in Game class
 
         // Assign the size of the tileMap by map size => available length from Game.Init()
-        tiles = new Tile[lenghtX, lenghtY]; 
+        tiles = new Tile[lenghtX, lenghtY];
         timeLimit = newTimeLimit;
         name = newName;
     }
@@ -46,11 +46,23 @@ public class Map
         // TODO For other available Path space pick a random Path from another Path prefab list? | Check the best system to do that
     }
 
-    public void UpdateMapStatus()
+    public void SubscribeTile(Tile newTile)
     {
+        int x = newTile.posX - Game.mapStartX - 1;
+        int y = newTile.posY - Game.mapStartY - 1;
+        //int x = 20;
+        //int y = 10;
+
+        tiles[x, y] = newTile;
         // ! DO THIS FIRST
         // TODO Refresh map tiles by all entities actual position
         // TODO for entities[e].tiles[i] 
+    }
+
+    public static Tile GetTile (int posX, int posY)
+    {
+        Tile nextTile = tiles[posX, posY];
+        return nextTile;
     }
 }
 

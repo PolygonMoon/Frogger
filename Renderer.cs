@@ -22,11 +22,11 @@ public static class Renderer
             frame++;    // Add a frame to the frame counter for debug purpose
             Clear();
             UiRenderer();
-            //MapRenderer();
             BulletsRenderer();
             ExplosionsRenderer();
             EntitiesRenderer();
             PlayersRenderer();
+            DebugTileMapTilesRenderer();      // ! TEMP DEBUG FOR TILE IN TILE MAP POSITION SYNCH
             // CollisionCheck();
             Thread.Sleep(renderDelay);
         }
@@ -70,6 +70,11 @@ public static class Renderer
         // Debug Entity
         SetCursorPosition(0, 4);
         WriteLine($"Entity Count: {entities.Count}");
+
+        // Debug TileMap
+        SetCursorPosition(20, 4);
+        WriteLine($"Map tiles.Length {Map.tiles.Length} | Temp.Car Pivot Tile position");
+
         // SetCursorPosition(20, 4);    // ! This is used for debug by method call on enemy move event
 
         // Debug Player Position
@@ -121,11 +126,47 @@ public static class Renderer
         }
     }
 
+    static void DebugTileMapTilesRenderer()
+    {
+        SetCursorPosition(Map.lenghtX, Map.lenghtY);
+        Write("M");
+
+        foreach (var tile in Map.tiles)
+        {
+            if (tile != null)
+            {
+                SetCursorPosition(tile.posX, tile.posY);
+                Write("T");
+                if (tile.posX + tile.parent.direction.x < availableLenghtX
+                && tile.posY + tile.parent.direction.y < availableLenghtY
+                && tile.posX + tile.parent.direction.x > mapStartX
+                && tile.posY + tile.parent.direction.y > mapStartY)
+                {
+                    SetCursorPosition(tile.posX + tile.parent.direction.x, tile.posY + tile.parent.direction.y);
+                    Write("+");
+
+                }
+            }
+        }
+        for (int i = 0; i < entities.Count; i++)
+        {
+            if (entities[i].posX + entities[i].direction.x < availableLenghtX
+                && entities[i].posY + entities[i].direction.y < availableLenghtY
+                && entities[i].posX + entities[i].direction.x > mapStartX
+                && entities[i].posY + entities[i].direction.y > mapStartY)
+            {
+                SetCursorPosition(entities[i].posX, entities[i].posY);
+                Write("E");
+            }
+        }
+    }
+
     static void EntitiesRenderer()
     {
         for (int i = 0; i < cars.Count; i++)
         {
-            // * New for loop
+            // * New for loop //
+            // ! Check if cars count > 0 ??? | Check if cars[i].tiles != null ???
             for (int y = 0; y < cars[i].tiles.GetLength(0); y++)        // Iterate through each row(y)
             {
                 for (int x = 0; x < cars[i].tiles.GetLength(1); x++)    // Iterate through each column(x) in the current row(y)
