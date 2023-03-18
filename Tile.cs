@@ -14,10 +14,10 @@ public class Tile
 
     public void Move(Direction newDirection)
     {
-        if (posX + newDirection.x >= mapStartX + availableLenghtX) posX = mapStartX;
-        else if (posX + newDirection.x < mapStartX) posX = mapStartX + availableLenghtX - 1;  // -1 is used to avoid scroll bar issues
-        if (posY + newDirection.y >= mapStartY + availableLenghtY) posY = mapStartY;
-        else if (posY + newDirection.y < mapStartY) posY = mapStartY + availableLenghtY - 1;  // -1 is used to avoid scroll bar issues
+        if (posX + newDirection.x >= mapStartX + mapLenghtX) posX = mapStartX;
+        else if (posX + newDirection.x < mapStartX) posX = mapStartX + mapLenghtX - 1;  // -1 is used to avoid scroll bar issues
+        if (posY + newDirection.y >= mapStartY + mapLenghtY) posY = mapStartY;
+        else if (posY + newDirection.y < mapStartY) posY = mapStartY + mapLenghtY - 1;  // -1 is used to avoid scroll bar issues
         else
         {
             posX += newDirection.x;

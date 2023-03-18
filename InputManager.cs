@@ -37,7 +37,7 @@ public static class InputManager
                                             // Check Collision
                                             if (players[i].posY > mapStartY)
                                             {
-                                                if (players[i].MoveEntity(inputDirection))
+                                                if (players[i].MovePlayer(inputDirection))
                                                 {
                                                     UpdateMoveState();
                                                 }
@@ -52,9 +52,9 @@ public static class InputManager
                                         for (int i = 0; i < players.Count; i++)
                                         {
                                             // Check Collision
-                                            if (players[i].posY < mapStartY + availableLenghtY - 2)
+                                            if (players[i].posY < mapStartY + mapLenghtY - 2)
                                             {
-                                                if (players[i].MoveEntity(inputDirection))
+                                                if (players[i].MovePlayer(inputDirection))
                                                 {
                                                     UpdateMoveState();
                                                 }
@@ -71,7 +71,7 @@ public static class InputManager
                                             // Check Collision
                                             if (players[i].posX > 1)
                                             {
-                                                if (players[i].MoveEntity(inputDirection))
+                                                if (players[i].MovePlayer(inputDirection))
                                                 {
                                                     UpdateMoveState();
                                                 }
@@ -86,9 +86,9 @@ public static class InputManager
                                         for (int i = 0; i < players.Count; i++)
                                         {
                                             // Check Collision
-                                            if (players[i].posX < availableLenghtX + mapStartX - charLength)
+                                            if (players[i].posX < mapLenghtX + mapStartX - charLength)
                                             {
-                                                if (players[i].MoveEntity(inputDirection))
+                                                if (players[i].MovePlayer(inputDirection))
                                                 {
                                                     UpdateMoveState();
                                                 }

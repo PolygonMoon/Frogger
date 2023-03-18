@@ -29,8 +29,8 @@ public class Map
 
     public void MapInit(int newTimeLimit, string newName)
     {
-        lenghtX = Game.availableLenghtX - 1;    // -1 is used to compensate tricks in other map size stuff in Game class
-        lenghtY = Game.availableLenghtY - 1;    // -1 is used to compensate tricks in other map size stuff in Game class
+        lenghtX = Game.mapLenghtX - 1;    // -1 is used to compensate tricks in other map size stuff in Game class
+        lenghtY = Game.mapLenghtY - 1;    // -1 is used to compensate tricks in other map size stuff in Game class
 
         // Assign the size of the tileMap by map size => available length from Game.Init()
         tiles = new Tile[lenghtX, lenghtY];

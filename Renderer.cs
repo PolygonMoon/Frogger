@@ -26,7 +26,8 @@ public static class Renderer
             ExplosionsRenderer();
             EntitiesRenderer();
             PlayersRenderer();
-            DebugTileMapTilesRenderer();      // ! TEMP DEBUG FOR TILE IN TILE MAP POSITION SYNCH
+            //DebugTileMapTilesRenderer();    // * DEBUG FOR TILE IN TILE MAP POSITION SYNCH
+            DebugPivotRenderer();           // * DEBUG FOR PIVOT POSITION
             // CollisionCheck();
             Thread.Sleep(renderDelay);
         }
@@ -78,9 +79,10 @@ public static class Renderer
         // SetCursorPosition(20, 4);    // ! This is used for debug by method call on enemy move event
 
         // Debug Player Position
-        SetCursorPosition(0, availableLenghtY + mapStartY - 1);
-        Write($"X: {players[0].posX} | Y: {players[0].posY}");
-        Write($"|===| MapLimit X: {mapStartX},{availableLenghtX + mapStartX} | Y: {mapStartY},{availableLenghtY + mapStartY}");
+        SetCursorPosition(0, mapLenghtY + mapStartY - 2);
+        Write($"X: {players[0].posX} | Y: {players[0].posY} | X: {entities[0].posX} | Y: {entities[0].posY}");
+        SetCursorPosition(0, mapLenghtY + mapStartY - 1);
+        Write($"|===| MapLimit X: {mapStartX},{mapLenghtX + mapStartX} | Y: {mapStartY},{mapLenghtY + mapStartY}");
 
         DrawLineH(0, WindowWidth, mapStartY - 1, "_");              // Draw Line for Debug Panel (Upper)
 
@@ -128,37 +130,62 @@ public static class Renderer
 
     static void DebugTileMapTilesRenderer()
     {
+        ForegroundColor = ConsoleColor.DarkRed;
         SetCursorPosition(Map.lenghtX, Map.lenghtY);
-        Write("M");
+        Write("T");
+        SetCursorPosition(mapLenghtX - 1 + mapStartX, mapLenghtY - 1 + mapStartY);
+        Write("G");
+        ForegroundColor = ConsoleColor.DarkGreen;
 
         foreach (var tile in Map.tiles)
         {
             if (tile != null)
             {
+                ForegroundColor = ConsoleColor.White;
                 SetCursorPosition(tile.posX, tile.posY);
                 Write("T");
-                if (tile.posX + tile.parent.direction.x < availableLenghtX
-                && tile.posY + tile.parent.direction.y < availableLenghtY
+                if (tile.posX + tile.parent.direction.x < mapLenghtX + mapStartX - 1
+                && tile.posY + tile.parent.direction.y < mapLenghtY + mapStartY - 1
                 && tile.posX + tile.parent.direction.x > mapStartX
                 && tile.posY + tile.parent.direction.y > mapStartY)
                 {
+                    ForegroundColor = ConsoleColor.DarkGreen;
                     SetCursorPosition(tile.posX + tile.parent.direction.x, tile.posY + tile.parent.direction.y);
                     Write("+");
 
                 }
             }
         }
+        ForegroundColor = ConsoleColor.Gray;
+    }
+
+    static void DebugPivotRenderer()
+    {
+        ForegroundColor = ConsoleColor.DarkYellow;
         for (int i = 0; i < entities.Count; i++)
         {
-            if (entities[i].posX + entities[i].direction.x < availableLenghtX
-                && entities[i].posY + entities[i].direction.y < availableLenghtY
-                && entities[i].posX + entities[i].direction.x > mapStartX
-                && entities[i].posY + entities[i].direction.y > mapStartY)
+            if (entities[i].posX < mapLenghtX
+                && entities[i].posY < mapLenghtY + mapStartY
+                && entities[i].posX > mapStartX
+                && entities[i].posY > mapStartY)
             {
                 SetCursorPosition(entities[i].posX, entities[i].posY);
-                Write("E");
+                Write("P");
             }
         }
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i].posX < mapLenghtX
+                && players[i].posY < mapLenghtY + mapStartY
+                && players[i].posX > mapStartX
+                && players[i].posY > mapStartY)
+            {
+                SetCursorPosition(players[i].posX, players[i].posY);
+                Write("P");
+            }
+        }
+        ForegroundColor = ConsoleColor.Gray;
+        UiInputRender();
     }
 
     static void EntitiesRenderer()
@@ -174,9 +201,7 @@ public static class Renderer
                     SetCursorPosition(cars[i].tiles[y, x].posX, cars[i].tiles[y, x].posY);
                     Write(cars[i].tiles[y, x].gfx); // Read and Write char gfx value from the Tile
                 }
-                // Magic Trick to avoid ReadKey() input render inside near char | Used as debug input info
-                SetCursorPosition(96, 0);
-                Write($"Input: ");
+                UiInputRender();
             }
 
             // * Old foreach loop | using nested for loop instead of foreach | Better handle tiles destroy event at run-time
@@ -211,6 +236,11 @@ public static class Renderer
                 Write(charGfxBottomB);
             }
         }
+        UiInputRender();
+    }
+
+    static void UiInputRender()
+    {
         // Magic Trick to avoid ReadKey() input render inside near char | Used as debug input info
         SetCursorPosition(96, 0);
         Write($"Input: ");

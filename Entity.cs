@@ -142,6 +142,41 @@ public class Entity
     }
 
     // === RUN-TIME METHODS
+    public bool MovePlayer(Direction newDirection)
+    {
+        bool isMoveValid = false;
+        //direction = newDirection;
+        //isMoveValid = CheckCollision(newDirection);
+        isMoveValid = true;
+
+        // Move Tiles
+        if (isMoveValid)
+        {
+            // Move Entity  // ! Evaluate to struct Position x y instead of separate int
+            if (posX < mapLenghtX + mapStartX
+                && posY < mapLenghtY + mapStartY
+                && posX > mapStartX
+                && posY > mapStartY)
+            {
+                posX += newDirection.x;
+                posY += newDirection.y;
+
+                // Iterate within each entity tiles an move it
+                for (int x = 0; x < tiles.GetLength(0); x++)
+                {
+                    for (int y = 0; y < tiles.GetLength(1); y++)
+                    {
+                        tiles[x, y].Move(newDirection);
+                    }
+                }
+                canMove = false;    // Reset move capability
+                moveTimer = 0;      // Reset moveTimer Entity move
+                return true;
+            }
+        }
+        return false;
+    }
+
     public bool MoveEntity(Direction newDirection)
     {
         bool isMoveValid = false;
@@ -151,11 +186,13 @@ public class Entity
         // Move Tiles
         if (isMoveValid)
         {
-            // Move Entity  // ! Evaluate to struct Position x y instead of separate int
-            if (posX + newDirection.x < availableLenghtX
-                && posY + newDirection.y < availableLenghtY
-                && posX + newDirection.x > mapStartX
-                && posY + newDirection.y > mapStartY)
+            // Teleport Entities if out of the map
+            if (posX + newDirection.x >= mapStartX + mapLenghtX) posX = mapStartX;
+            else if (posX + newDirection.x < mapStartX) posX = mapStartX + mapLenghtX - 1;  // -1 is used to avoid scroll bar issues
+            if (posY + newDirection.y >= mapStartY + mapLenghtY) posY = mapStartY - 1;
+            else if (posY + newDirection.y < mapStartY) posY = mapStartY + mapLenghtY - 1;  // -1 is used to avoid scroll bar issues
+
+            // Move Entity
             posX += newDirection.x;
             posY += newDirection.y;
 
@@ -185,9 +222,19 @@ public class Entity
                 // TODO Add a fucking permanet debug print of the next nextTile.entityType
                 int tileXpos = tiles[x, y].posX;
                 int tileYpos = tiles[x, y].posY;
-                Tile nextTile = Map.tiles[tileXpos + newDirection.x - Game.mapStartX - 1, tileYpos + newDirection.y - Game.mapStartY - 1];
+                // Debug checked Tile direction check
+                ForegroundColor = ConsoleColor.Red;
+                SetCursorPosition(tileXpos + direction.x, tileYpos + direction.y);
+                Write("C");
 
-                if (nextTile != null && nextTile.tileType != entityType) return false;
+                Tile nextTile = Map.tiles[tileXpos + newDirection.x + Game.mapStartX, tileYpos + newDirection.y + Game.mapStartY - 1];
+                // Next Tile Debug Renderer
+                ForegroundColor = ConsoleColor.Cyan;
+                SetCursorPosition(nextTile.posX, nextTile.posY);
+                Write("C");
+
+                //if (nextTile != null && nextTile.tileType != entityType) return false;
+                if (nextTile == null) return true;
                 else
                 {
                     // Collision Handler by Switch EntityType type

@@ -49,8 +49,8 @@ public static class Game
     // = Map Setup
     public static byte mapStartX = 0;   // Manually chose map X start position
     public static byte mapStartY = 6;   // Manually chose map Y start position
-    public static byte availableLenghtX;
-    public static byte availableLenghtY;
+    public static byte mapLenghtX;
+    public static byte mapLenghtY;
 
     // === Initialize Game Loops
     static public void GameStart()
@@ -78,8 +78,8 @@ public static class Game
         // ! LoadMap(index);  // From Map.cs
 
         // Set Map size by window size // TODO Try to force a fixed windows size
-        availableLenghtX = (byte)((WindowWidth - mapStartX) - 1); // Using -1 to avoid scroll bar
-        availableLenghtY = (byte)(WindowHeight - mapStartY);
+        mapLenghtX = (byte)(WindowWidth - mapStartX); // ? Using -1 to avoid scroll bar
+        mapLenghtY = (byte)(WindowHeight - mapStartY);
     }
 
     static void MapInit()
@@ -104,8 +104,8 @@ public static class Game
         charLength = charGfxBottomA.Length;
         Entity player = new Entity();
         player.name = "Player_0";
-        player.spawnX = mapStartX + availableLenghtX / 2 - charLength / 2 - 1;
-        player.spawnY = mapStartY + availableLenghtY - 2;
+        player.spawnX = mapStartX + mapLenghtX / 2 - 3;
+        player.spawnY = mapStartY + mapLenghtY - 2;
         player.Instantiate(player.spawnX, player.spawnY, Entity.EntityType.Player, Entity.MoveType.Free, 1);
         player.gun = new Gun();
         player.gun.owner = player;
@@ -116,8 +116,8 @@ public static class Game
         charLength = charGfxBottomA.Length;
         player.name = "Player_1";
         Entity player2 = new Entity();
-        player2.spawnX = mapStartX + availableLenghtX / 2 - charLength / 2 - 1 + 20;
-        player2.spawnY = mapStartY + availableLenghtY - 2 - 6;
+        player2.spawnX = mapStartX + mapLenghtX / 2 - 3 + 20;
+        player2.spawnY = mapStartY + mapLenghtY - 2 - 6;
         player2.Instantiate(player2.spawnX, player2.spawnY, Entity.EntityType.Player, Entity.MoveType.Free, 1);
         player2.gun = new Gun();
         player2.gun.owner = player2;
@@ -129,31 +129,30 @@ public static class Game
         // Setup Car
         Entity car = new Entity();
         car.name = "Car_0";
-        car.Instantiate(availableLenghtX / 2, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Static, 1);
+        car.Instantiate(mapLenghtX / 2, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Left, 8);
         cars.Add(car);
         entities.Add(car);
 
         Entity car2 = new Entity();
         car2.name = "Car_2";
-        car2.Instantiate(availableLenghtX / 2 - 20, mapStartY + 4, Entity.EntityType.Enemy, Entity.MoveType.Left, 14);
+        car2.Instantiate(mapLenghtX / 2 - 20, mapStartY + 4, Entity.EntityType.Enemy, Entity.MoveType.Static, 14);
         cars.Add(car2);
         entities.Add(car2);
-
         Entity car3 = new Entity();
         car3.name = "Car_3";
-        car3.Instantiate(availableLenghtX / 2 - 20, mapStartY + 8, Entity.EntityType.Enemy, Entity.MoveType.Left, 2);
+        car3.Instantiate(mapLenghtX / 2 - 20, mapStartY + 8, Entity.EntityType.Enemy, Entity.MoveType.Left, 2);
         cars.Add(car3);
         entities.Add(car3);
 
         Entity car4 = new Entity();
         car4.name = "Car_4";
-        car4.Instantiate(availableLenghtX - 30, mapStartY + 6, Entity.EntityType.Enemy, Entity.MoveType.Right, 1);
+        car4.Instantiate(mapLenghtX - 30, mapStartY + 6, Entity.EntityType.Enemy, Entity.MoveType.Right, 1);
         cars.Add(car4);
         entities.Add(car4);
 
         Entity car5 = new Entity();
         car5.name = "Car_5";
-        car5.Instantiate(availableLenghtX - 10, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Down, 1);
+        car5.Instantiate(mapLenghtX - 10, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Down, 1);
         cars.Add(car5);
         entities.Add(car5);
     }
