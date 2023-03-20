@@ -24,11 +24,13 @@ public static class Renderer
             UiRenderer();
             BulletsRenderer();
             ExplosionsRenderer();
-            EntitiesRenderer();
+            CollisionPreviewRenderer();
+            //EntitiesRenderer();
             PlayersRenderer();
-            //DebugTileMapTilesRenderer();    // * DEBUG FOR TILE IN TILE MAP POSITION SYNCH
+            //DebugMapTilePositionRenderer();    // * DEBUG FOR TILE IN TILE MAP POSITION SYNCH
+            DebugMapTileRenderer();
             DebugPivotRenderer();           // * DEBUG FOR PIVOT POSITION
-            // CollisionCheck();
+            //CollisionCheck();
             Thread.Sleep(renderDelay);
         }
     }
@@ -93,8 +95,8 @@ public static class Renderer
 
     public static void DebugEvent(string text)
     {
-        SetCursorPosition(20, 4);
-        WriteLine($"DEBUG EVENT => {text}");
+        SetCursorPosition(mapLenghtX - 40, mapLenghtY + mapStartY - 1);
+        Write($"DEBUG EVENT => {text}");
     }
 
     static void BulletsRenderer()
@@ -128,12 +130,46 @@ public static class Renderer
         }
     }
 
-    static void DebugTileMapTilesRenderer()
+    static void DebugMapTileRenderer()     // Show Tile over MapTile array 
+    {
+        // Iterate within MapTile array and draw the tile type content fore each array
+        for (int y = 0; y < Map.tiles.GetLength(1); y++)        // Iterate through each row(y)
+        {
+            for (int x = 0; x < Map.tiles.GetLength(0); x++)    // Iterate through each column(x) in the current row(y)
+            {
+                if (Map.tiles[x, y] != null)
+                {
+                    SetCursorPosition(x, y);
+                    Write("@");
+                }
+            }
+            UiInputRender();
+        }
+    }
+
+    static void CollisionPreviewRenderer()
+    {
+        for (int y = 1; y < Map.tiles.GetLength(1); y++)        // Iterate through each row(y)
+        {
+            for (int x = 1; x < Map.tiles.GetLength(0); x++)    // Iterate through each column(x) in the current row(y)
+            {
+                if (Map.tiles[x, y] != null)
+                {
+                    ForegroundColor = ConsoleColor.Red;
+                    SetCursorPosition(x + Map.tiles[x, y].parent.direction.x, y + Map.tiles[x, y].parent.direction.y);
+                    Write("#");
+                }
+            }
+            ForegroundColor = ConsoleColor.Gray;
+        }
+    }
+
+    static void DebugMapTilePositionRenderer()
     {
         ForegroundColor = ConsoleColor.DarkRed;
-        SetCursorPosition(Map.lenghtX, Map.lenghtY);
+        SetCursorPosition(mapLenghtX - 1, mapLenghtY - 1);
         Write("T");
-        SetCursorPosition(mapLenghtX - 1 + mapStartX, mapLenghtY - 1 + mapStartY);
+        SetCursorPosition(mapStartX + mapLenghtX - 1, mapStartY + mapLenghtY - 1);
         Write("G");
         ForegroundColor = ConsoleColor.DarkGreen;
 
@@ -151,8 +187,7 @@ public static class Renderer
                 {
                     ForegroundColor = ConsoleColor.DarkGreen;
                     SetCursorPosition(tile.posX + tile.parent.direction.x, tile.posY + tile.parent.direction.y);
-                    Write("+");
-
+                    //Write("+");
                 }
             }
         }
@@ -161,6 +196,7 @@ public static class Renderer
 
     static void DebugPivotRenderer()
     {
+        // Debug Entities Pivot
         ForegroundColor = ConsoleColor.DarkYellow;
         for (int i = 0; i < entities.Count; i++)
         {
@@ -173,6 +209,8 @@ public static class Renderer
                 Write("P");
             }
         }
+        // Debug Players Pivot
+        ForegroundColor = ConsoleColor.DarkGreen;
         for (int i = 0; i < players.Count; i++)
         {
             if (players[i].posX < mapLenghtX

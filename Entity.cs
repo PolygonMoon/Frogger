@@ -15,7 +15,7 @@ public class Entity
     public int posY;
     public Direction direction;
     public bool isAlive = true;
-    public bool canMove = false;
+    public bool entityCanMove = false;
 
     // Collision status
     Entity? collision = null;
@@ -102,16 +102,16 @@ public class Entity
             for (int y = 0; y < tiles.GetLength(1); y++)
             {
                 Tile newTile = new Tile();
-                newTile.parent = this;          // Set Tile Parent to this Entity
+                newTile.parent = this;              // Set Tile Parent to this Entity
                 newTile.tileType = entityType;
                 // If type Player draw different Gfx
                 if (entityType == EntityType.Player) newTile.gfx = charGfxA[y, x];
-                else newTile.gfx = gfx[y, x];   // Read gfx char array and write the value to new Tile char gfx
+                else newTile.gfx = gfx[y, x];       // Read gfx char array and write the value to new Tile char gfx
 
-                newTile.posX = posX + x;        // Offset the Tile position by the x index value
-                newTile.posY = posY + y;        // Offset the Tile position by the y index value
-                tiles[x, y] = newTile;          // Copy the new Tile to the tiles Tile
-                mapInUse.SubscribeTile(newTile);
+                newTile.posX = posX + x;            // Offset the Tile position by the x index value
+                newTile.posY = posY + y;            // Offset the Tile position by the y index value
+                tiles[x, y] = newTile;              // Copy the new Tile to the tiles Tile
+                Map.SubscribeMapTile(newTile);      // Subscribe the new Tile within the MapTile
             }
         }
     }
@@ -169,7 +169,7 @@ public class Entity
                         tiles[x, y].Move(newDirection);
                     }
                 }
-                canMove = false;    // Reset move capability
+                entityCanMove = false;    // Reset move capability
                 moveTimer = 0;      // Reset moveTimer Entity move
                 return true;
             }
@@ -177,10 +177,10 @@ public class Entity
         return false;
     }
 
-    public bool MoveEntity(Direction newDirection)
+    public void MoveEntity(Direction newDirection)
     {
         bool isMoveValid = false;
-        isMoveValid = CheckCollision(newDirection);
+        isMoveValid = CheckEntityCollision(newDirection);
         //isMoveValid = true;
 
         // Move Tiles
@@ -202,43 +202,30 @@ public class Entity
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
                     tiles[x, y].Move(newDirection);
+                    // ! Subscribing the tile after the movement
+                    Map.SubscribeMapTile(tiles[x, y]);
                 }
             }
-            canMove = false;    // Reset move capability
-            moveTimer = 0;      // Reset moveTimer Entity move
-            return true;
+            entityCanMove = false;    // Reset move capability
+            moveTimer = 0;          // Reset moveTimer Entity move
+            // * MOVED
         }
-        else return false;
+        // * CANT MOVE
     }
 
-    bool CheckCollision(Direction newDirection)
+    bool CheckEntityCollision(Direction newDirection)
     {
-        // Check the next tile status for each tile in tiles by movemenet direction
+        bool canTilesMove = true;
+        // Iterate within Entity Tiles and check next tile status by movemenet direction
         for (int x = 0; x < tiles.GetLength(0); x++)
         {
             for (int y = 0; y < tiles.GetLength(1); y++)
             {
-                // ! NEED A FIX HERE, probably is not picking the right tile?
-                // TODO Add a fucking permanet debug print of the next nextTile.entityType
-                int tileXpos = tiles[x, y].posX;
-                int tileYpos = tiles[x, y].posY;
-                // Debug checked Tile direction check
-                ForegroundColor = ConsoleColor.Red;
-                SetCursorPosition(tileXpos + direction.x, tileYpos + direction.y);
-                Write("C");
-
-                Tile nextTile = Map.tiles[tileXpos + newDirection.x + Game.mapStartX, tileYpos + newDirection.y + Game.mapStartY - 1];
-                // Next Tile Debug Renderer
-                ForegroundColor = ConsoleColor.Cyan;
-                SetCursorPosition(nextTile.posX, nextTile.posY);
-                Write("C");
-
-                //if (nextTile != null && nextTile.tileType != entityType) return false;
-                if (nextTile == null) return true;
-                else
-                {
-                    // Collision Handler by Switch EntityType type
-                }
+                //SetCursorPosition(40, mapLenghtY + mapStartY - 1);
+                //Write("CHECKING COLLISION");
+                
+                if (tiles[x, y] != null) canTilesMove = tiles[x, y].CheckTileCollision(newDirection);
+                if (!canTilesMove) return false; 
             }
         }
         return true;

@@ -25,14 +25,17 @@ public static class EntityManager
                {
                    while (Game.isRunning)
                    {
+                       // ! REFRESHING MAP TILE HERE | Looks fine ???
+                       Map.tiles = new Tile[Game.mapStartX + Game.mapLenghtX, Game.mapStartY + Game.mapLenghtY];
+
                        for (int e = 0; e < entities.Count; e++)    // Iterate through entities list
                        {
                            if (entities[e].isAlive)     // Check if entity is alive
                            {
                                if (entities[e].moveTimer < entities[e].moveDelay) entities[e].moveTimer++;
-                               if (entities[e].moveTimer >= entities[e].moveDelay) entities[e].canMove = true;
+                               if (entities[e].moveTimer >= entities[e].moveDelay) entities[e].entityCanMove = true;
 
-                               if (entities[e].canMove)
+                               if (entities[e].entityCanMove)
                                {
                                    entities[e].MoveEntity(entities[e].direction);
                                    // Debug Log

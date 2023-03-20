@@ -43,9 +43,6 @@ public static class Game
     public static int verticalRange = 2;
     public static int horizontalRange = 2;
 
-    // = Map Status
-    static public Map mapInUse = new Map();
-
     // = Map Setup
     public static byte mapStartX = 0;   // Manually chose map X start position
     public static byte mapStartY = 6;   // Manually chose map Y start position
@@ -84,7 +81,7 @@ public static class Game
 
     static void MapInit()
     {
-        mapInUse.MapInit(100, "New Map Name");
+        Map.MapInit(100, "New Map Name");
     }
 
     // === ENTITIES SETUP // ! TESTING PLACEHOLDER SOLUTION ! //
@@ -129,15 +126,16 @@ public static class Game
         // Setup Car
         Entity car = new Entity();
         car.name = "Car_0";
-        car.Instantiate(mapLenghtX / 2, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Left, 8);
+        car.Instantiate(mapLenghtX / 2, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Left, 5);
         cars.Add(car);
         entities.Add(car);
 
         Entity car2 = new Entity();
         car2.name = "Car_2";
-        car2.Instantiate(mapLenghtX / 2 - 20, mapStartY + 4, Entity.EntityType.Enemy, Entity.MoveType.Static, 14);
+        car2.Instantiate(mapLenghtX / 2 - 20, mapStartY + 4, Entity.EntityType.Enemy, Entity.MoveType.Static, 1);
         cars.Add(car2);
         entities.Add(car2);
+        /*
         Entity car3 = new Entity();
         car3.name = "Car_3";
         car3.Instantiate(mapLenghtX / 2 - 20, mapStartY + 8, Entity.EntityType.Enemy, Entity.MoveType.Left, 2);
@@ -155,6 +153,7 @@ public static class Game
         car5.Instantiate(mapLenghtX - 10, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Down, 1);
         cars.Add(car5);
         entities.Add(car5);
+        */
     }
 
 

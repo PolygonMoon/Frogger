@@ -1,44 +1,40 @@
 using static System.Console;
 
-public class Map
+public static class Map
 {
     // Map Status
     public static Tile[,] tiles = new Tile[1, 1];
 
     // Map Path
-    public List<Path> paths = new List<Path>();
+    public static List<Path> paths = new List<Path>();
 
     // Map Setup
     static string name = "default map name";
-    public static int lenghtX;
-    public static int lenghtY;
+
     // Time Limit Setup
     static int timeLimit;
     static int time;
 
-    public void Load(int mapIndex)
+    public static void Load(int mapIndex)
     {
         // Load a Map from a Map list | the index is the level progression
     }
 
-    public void LoadRandomMap()
+    public static void LoadRandomMap()
     {
         // TODO Manage Random Map Setup
         // TODO Random Path Setup
     }
 
-    public void MapInit(int newTimeLimit, string newName)
+    public static void MapInit(int newTimeLimit, string newName)
     {
-        lenghtX = Game.mapLenghtX - 1;    // -1 is used to compensate tricks in other map size stuff in Game class
-        lenghtY = Game.mapLenghtY - 1;    // -1 is used to compensate tricks in other map size stuff in Game class
-
         // Assign the size of the tileMap by map size => available length from Game.Init()
-        tiles = new Tile[lenghtX, lenghtY];
+        tiles = new Tile[Game.mapStartX + Game.mapLenghtX, Game.mapStartY + Game.mapLenghtY];
         timeLimit = newTimeLimit;
         name = newName;
     }
 
-    void Populate()
+    static void Populate()
     {
         // TODO Check the leghtY value and find the maxPathCount available space
         // TODO Remember to consider the start empty path and the final goals path
@@ -46,20 +42,38 @@ public class Map
         // TODO For other available Path space pick a random Path from another Path prefab list? | Check the best system to do that
     }
 
-    public void SubscribeTile(Tile newTile)
+    public static void SubscribeMapTile(Tile tileToSubscribe)
     {
-        int x = newTile.posX - Game.mapStartX - 1;
-        int y = newTile.posY - Game.mapStartY - 1;
-        //int x = 20;
-        //int y = 10;
+        int x = tileToSubscribe.posX;
+        int y = tileToSubscribe.posY;
 
-        tiles[x, y] = newTile;
-        // ! DO THIS FIRST
-        // TODO Refresh map tiles by all entities actual position
-        // TODO for entities[e].tiles[i] 
+        tiles[x, y] = tileToSubscribe;
     }
 
-    public static Tile GetTile (int posX, int posY)
+    // public static void UpdateMapTile(Tile tileToUpdate, Direction oldPosition, Direction newPosition)
+    // {
+    //     // Debug Old Position
+    //     ForegroundColor = ConsoleColor.Red;
+    //     SetCursorPosition(tiles[oldPosition.x, oldPosition.y].posX, tiles[oldPosition.x, oldPosition.y].posY);
+    //     Write("P");
+
+    //     // Check X Map Limits
+    //     if (newPosition.x >= Game.mapStartX + Game.mapLenghtX) newPosition.x = Game.mapStartX;
+    //     else if (newPosition.x < Game.mapStartX) newPosition.x = Game.mapStartX + Game.mapLenghtX - 1;  // -1 is used to avoid scroll bar issues
+    //     // Check Y Map Limits
+    //     if (newPosition.y >= Game.mapStartY + Game.mapLenghtY) newPosition.y = Game.mapStartY;
+    //     else if (newPosition.y < Game.mapStartY) newPosition.y = Game.mapStartY + Game.mapLenghtY - 1;  // -1 is used to avoid scroll bar issues
+
+
+    //     tiles[oldPosition.x, oldPosition.y].posX = newPosition.x;
+    //     tiles[oldPosition.x, oldPosition.y].posY = newPosition.y; ;
+    //     //Debug New Position
+    //     ForegroundColor = ConsoleColor.Red;
+    //     SetCursorPosition(tiles[oldPosition.x, oldPosition.y].posX, tiles[oldPosition.x, oldPosition.y].posY);
+    //     Write("#");
+    // }
+
+    public static Tile GetTile(int posX, int posY)
     {
         Tile nextTile = tiles[posX, posY];
         return nextTile;
