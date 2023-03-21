@@ -32,9 +32,9 @@ public class Tile
     {
         // * Excecure Collision Check only if entity tile is within map limits
         if (posX + newDirection.x < mapLenghtX + mapStartX - 1
-                        && posY + newDirection.y < mapLenghtY + mapStartY - 1
-                        && posX + newDirection.x > mapStartX
-                        && posY + newDirection.y > mapStartY)
+            && posY + newDirection.y < mapLenghtY + mapStartY - 1
+            && posX + newDirection.x > mapStartX
+            && posY + newDirection.y > mapStartY)
         {
             // Save nextTile MapTiles Tile
             Tile? nextTile = Map.tiles[posX + newDirection.x, posY + newDirection.y];
