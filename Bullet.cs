@@ -9,6 +9,7 @@ public class Bullet
     public bool isPlayer;
     public Entity? shooter;
     public bool isExploded = false;
+    // TODO Add Direction | pick from parent entity
 
     // Bullet Setup
     public int damage;

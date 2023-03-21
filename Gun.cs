@@ -50,6 +50,7 @@ public class Gun
                });
     }
 
+    // ! CONVERT BULLET TO ENTITY
     public void Shoot(int spawnX, int spawnY, Entity shooter, bool isPlayer)
     {
         {

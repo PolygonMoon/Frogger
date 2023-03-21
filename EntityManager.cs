@@ -53,6 +53,9 @@ public static class EntityManager
                                }
                            }
                        }
+
+                       // TODO Move all alive bullet entities
+
                        await Task.Delay(brainDelay);
                    }
                });
