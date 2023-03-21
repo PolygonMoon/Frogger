@@ -9,13 +9,13 @@ public class Tile
     public int posY;
     public char gfx = 'O';
     public Entity? collision;
-    public Entity parent;
-    public Entity.EntityType tileType;
+    public Entity? parent;
+    public Entity.EntityType? tileType;
 
     public void Move(Direction newDirection)
     {
-        // Save old tile position
-        Direction oldPosition = new Direction { x = posX, y = posY };
+        // UnSubscribe the tile before the movement | // ! TESTING
+        Map.UnSubscribeMapTile(this);
 
         // Check X Map Limits
         if (posX + newDirection.x >= mapStartX + mapLenghtX) posX = mapStartX;
@@ -29,34 +29,25 @@ public class Tile
             posX += newDirection.x;
             posY += newDirection.y;
         }
-        Direction newPosition = new Direction { x = posX, y = posY };
+        // UnSubscribe the tile after the movement | // ! TESTING | precision issue here
+        //Map.UnSubscribeMapTile(this);
+        // Subscribe the tile after the movement
+        Map.SubscribeMapTile(this);
     }
 
     public bool CheckTileCollision(Direction newDirection)
     {
-        //return true;    // ! WORK UNTIL HERE
-
-        // * Avoid collision check if tiles is on map limits
+        // * Excecure Collision Check only if entity tile is within map limits
         if (posX + newDirection.x < mapLenghtX + mapStartX - 1
                         && posY + newDirection.y < mapLenghtY + mapStartY - 1
                         && posX + newDirection.x > mapStartX
                         && posY + newDirection.y > mapStartY)
         {
-            //return true;
-            // Debug Next Tile direction in MapTile
-            //return true;
-
-            Tile nextTile = Map.tiles[posX + newDirection.x, posY + newDirection.y];
-            //return true;
-
-            if (Map.tiles[posX + newDirection.x, posY + newDirection.y] == null
-            || Map.tiles[posX + newDirection.x, posY + newDirection.y].tileType == parent.entityType)
+            // Save nextTile MapTiles Tile
+            Tile? nextTile = Map.tiles[posX + newDirection.x, posY + newDirection.y];
+            // Check nextTile content
+            if (nextTile == null || nextTile.tileType == parent.entityType)
             {
-                //ForegroundColor = ConsoleColor.Red;
-                //SetCursorPosition(posX + newDirection.x, posY + newDirection.y);
-                //Write("+");
-                //ForegroundColor = ConsoleColor.Gray;
-
                 return true;
             }
             else
@@ -65,12 +56,14 @@ public class Tile
                 return false;
             }
         }
-        else return true;   // * Skipping collisio due to map limits
+        else return true;   // * Skipping collision check due to map limits
+    }
 
-
-
-        //if (nextTile != null && nextTile.tileType != entityType) return false;
-
+    void CollisionHandler(Tile collidingTile, Tile collisionTile)
+    {
+        // Damage
+        // Kill
+        // ForceMove | return true ?
     }
 
     void DealDamage(int damage) // ! damage value from gun

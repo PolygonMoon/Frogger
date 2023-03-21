@@ -3,8 +3,8 @@ using static System.Console;
 public static class Map
 {
     // Map Status
-    public static Tile[,] tiles = new Tile[1, 1];
-    public static Tile[,] tilesCopy = new Tile[1,1];
+    public static Tile?[,] tiles = new Tile?[1, 1];
+    public static Tile[,] tilesCopy = new Tile[1, 1];    // ! CHECK if is still needed after Subscribe/UnSubscribe implementation
 
     // Map Path
     public static List<Path> paths = new List<Path>();
@@ -52,6 +52,14 @@ public static class Map
         tiles[x, y] = tileToSubscribe;
     }
 
+    public static void UnSubscribeMapTile(Tile tileToUnSubscribe)
+    {
+        int x = tileToUnSubscribe.posX;
+        int y = tileToUnSubscribe.posY;
+
+        tiles[x, y] = null;
+    }
+
     // public static void UpdateMapTile(Tile tileToUpdate, Direction oldPosition, Direction newPosition)
     // {
     //     // Debug Old Position
@@ -75,10 +83,11 @@ public static class Map
     //     Write("#");
     // }
 
-    public static Tile GetTile(int posX, int posY)
+    public static Tile? GetTile(int posX, int posY)
     {
-        Tile nextTile = tiles[posX, posY];
-        return nextTile;
+        Tile? nextTile = tiles[posX, posY];
+        if (nextTile != null) return nextTile;
+        else return null;
     }
 }
 

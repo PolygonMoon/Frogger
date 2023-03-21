@@ -23,11 +23,11 @@ public static class Renderer
             UiRenderer();
             BulletsRenderer();
             ExplosionsRenderer();
-            //CollisionPreviewRenderer();
-            EntitiesRenderer();
+            //CollisionPreviewRenderer();         // ! Need some fix
+            //EntitiesRenderer();
             PlayersRenderer();
             //DebugMapTilePositionRenderer();   // * DEBUG FOR TILE IN TILE MAP POSITION SYNCH
-            //DebugMapTileRenderer();           // * DEBUG FOR TILE PRESENCE (@)
+            DebugMapTileRenderer();           // * DEBUG FOR TILE PRESENCE (@)
             DebugPivotRenderer();               // * DEBUG FOR PIVOT POSITION
             //CollisionCheck();
             Thread.Sleep(renderDelay);
@@ -151,19 +151,27 @@ public static class Renderer
         // Save a copy of the original tiles array in order to avoid asynch changed during the rendering nested loop
         Array.Copy(Map.tiles, Map.tilesCopy, Map.tiles.Length);
 
-        for (int y = 1; y < Map.tilesCopy.GetLength(1); y++)        // Iterate through each row(y)
+        for (int y = 0; y < Map.tilesCopy.GetLength(1); y++)        // Iterate through each row(y)
         {
-            for (int x = 1; x < Map.tilesCopy.GetLength(0); x++)    // Iterate through each column(x) in the current row(y)
+            for (int x = 0; x < Map.tilesCopy.GetLength(0); x++)    // Iterate through each column(x) in the current row(y)
             {
                 if (Map.tilesCopy[x, y] != null)
                 {
-                    ForegroundColor = ConsoleColor.Red;
-                    SetCursorPosition(x + Map.tilesCopy[x, y].parent.direction.x, y + Map.tilesCopy[x, y].parent.direction.y);
-                    // ! Check missing reference error | looks fine
-                    Write("#");
+                    Tile? tileToCheck = Map.tilesCopy[x, y];
+                    if (tileToCheck.posX + tileToCheck.parent.direction.x < mapLenghtX + mapStartX - 1
+                        && tileToCheck.posY + tileToCheck.parent.direction.y < mapLenghtY + mapStartY - 1
+                        && tileToCheck.posX + tileToCheck.parent.direction.x > mapStartX
+                        && tileToCheck.posY + tileToCheck.parent.direction.y > mapStartY)
+                    {
+                        ForegroundColor = ConsoleColor.Red;
+                        SetCursorPosition(tileToCheck.posX + tileToCheck.parent.direction.x, tileToCheck.posY + tileToCheck.parent.direction.y);
+                        // ! Check missing reference error | looks fine | using MapTile array copy just for renderer
+                        // ! CHECK WRONG POSITION RENDERING | looks fine but its really slow
+                        Write("#");
+                    }
                 }
+                ForegroundColor = ConsoleColor.Gray;
             }
-            ForegroundColor = ConsoleColor.Gray;
         }
     }
 

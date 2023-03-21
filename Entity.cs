@@ -21,7 +21,7 @@ public class Entity
     Entity? collision = null;
 
     // Tiles Status
-    public Tile[,]? tiles;
+    public Tile[,] tiles = new Tile[1,1];
 
     // Spawn Setup  // ! Not needed ??? | Directly use posX,posY within spawn method
     public int spawnX;
@@ -149,10 +149,10 @@ public class Entity
         //isMoveValid = CheckCollision(newDirection);
         isMoveValid = true;
 
-        // Move Tiles
+        // == MOVE PLAYER RULES
         if (isMoveValid)
         {
-            // Move Entity  // ! Evaluate to struct Position x y instead of separate int
+            // Map Limits Check | Stop Player Movement if adiacent to map limits
             if (posX < mapLenghtX + mapStartX
                 && posY < mapLenghtY + mapStartY
                 && posX > mapStartX
@@ -178,21 +178,21 @@ public class Entity
     }
 
     public void MoveEntity(Direction newDirection)
-    {
+    {   // Declare a starting false move validity | Will be overwritten by collision check result
         bool isMoveValid = false;
+        // Check Entity next movement collision by running a collision check to all entitiy tiles
         isMoveValid = CheckEntityCollision(newDirection);
-        //isMoveValid = true;
 
-        // Move Tiles
+        // == MOVE ENTITY RULES
         if (isMoveValid)
         {
-            // Teleport Entities if out of the map
+            // Map Limits Check | Teleport Entities if out of the map
             if (posX + newDirection.x >= mapStartX + mapLenghtX) posX = mapStartX;
             else if (posX + newDirection.x < mapStartX) posX = mapStartX + mapLenghtX - 1;  // -1 is used to avoid scroll bar issues
             if (posY + newDirection.y >= mapStartY + mapLenghtY) posY = mapStartY - 1;
             else if (posY + newDirection.y < mapStartY) posY = mapStartY + mapLenghtY - 1;  // -1 is used to avoid scroll bar issues
 
-            // Move Entity
+            // Move Entity Pivot
             posX += newDirection.x;
             posY += newDirection.y;
 
@@ -201,39 +201,32 @@ public class Entity
             {
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
-                    tiles[x, y].Move(newDirection);
-                    // ! Subscribing the tile after the movement | Need to be subscribed each frame !?
-                    Map.SubscribeMapTile(tiles[x, y]);
+                    tiles[x, y].Move(newDirection);     // <= Each tile is UnSubscribing and Subscribing to the MapTile here 
                 }
             }
-            entityCanMove = false;    // Reset move capability
+            entityCanMove = false;  // Reset move capability
             moveTimer = 0;          // Reset moveTimer Entity move
-            // * MOVED
+            // MOVEMENT COMPLETE
         }
-        // * CANT MOVE
+        // MOVEMENT NOT POSSIBLE | Due to collision check
     }
 
     bool CheckEntityCollision(Direction newDirection)
     {
         bool canTilesMove = true;
+
         // Iterate within Entity Tiles and check next tile status by movemenet direction for each tile
         for (int y = 0; y < tiles.GetLength(1); y++)
         {
             for (int x = 0; x < tiles.GetLength(0); x++)
             {
-                //SetCursorPosition(40, mapLenghtY + mapStartY - 1);
-                //Write("CHECKING COLLISION");
-                
+                // Check if actual entity tile can move due to collision check result
                 if (tiles[x, y] != null) canTilesMove = tiles[x, y].CheckTileCollision(newDirection);
                 if (!canTilesMove) return false; 
             }
         }
+        // If no collisions are detected => All tiles can move = Entity can move
         return true;
-    }
-
-    void CollisionHandler(Entity collisionEntity)
-    {
-
     }
 
     void Die()
