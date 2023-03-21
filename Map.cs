@@ -4,6 +4,7 @@ public static class Map
 {
     // Map Status
     public static Tile[,] tiles = new Tile[1, 1];
+    public static Tile[,] tilesCopy = new Tile[1,1];
 
     // Map Path
     public static List<Path> paths = new List<Path>();
@@ -30,6 +31,7 @@ public static class Map
     {
         // Assign the size of the tileMap by map size => available length from Game.Init()
         tiles = new Tile[Game.mapStartX + Game.mapLenghtX, Game.mapStartY + Game.mapLenghtY];
+        tilesCopy = new Tile[Map.tiles.GetLength(0), Map.tiles.GetLength(1)];
         timeLimit = newTimeLimit;
         name = newName;
     }

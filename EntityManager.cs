@@ -5,7 +5,7 @@ using static Game;
 public static class EntityManager
 {
     // = Brain Setup
-    const int brainDelay = 16; // Define Brain Refresh Delay | Default value 16ms = 60 FPS
+    const int brainDelay = 64; // Define Brain Refresh Delay | Default value 16ms = 60 FPS
     public static float brainFps;
 
     // = Entity Manager
@@ -25,8 +25,21 @@ public static class EntityManager
                {
                    while (Game.isRunning)
                    {
-                       // ! REFRESHING MAP TILE HERE | Looks fine ???
+                       // ! REFRESHING MAP TILE HERE with an mpety array | Looks fine ???
+                       // Tiles will be resubscribe to the maptile within the MoveEntity() method
                        Map.tiles = new Tile[Game.mapStartX + Game.mapLenghtX, Game.mapStartY + Game.mapLenghtY];
+
+                       // ! Force all tiles subscribing for each entity every entity brain update
+                       for (int e = 0; e < entities.Count; e++)    // Iterate through entities list
+                       {
+                           if (entities[e].isAlive)     // Check if entity is alive
+                           {
+                               foreach (var tile in entities[e].tiles)
+                               {
+                                   Map.SubscribeMapTile(tile);
+                               }
+                           }
+                       }
 
                        for (int e = 0; e < entities.Count; e++)    // Iterate through entities list
                        {

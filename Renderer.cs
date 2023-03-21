@@ -13,7 +13,6 @@ public static class Renderer
 
     public static string activeEntity = "default entity";
 
-
     // === RENDERING LOOP
     public static void RenderLoop()  // Rendering Loops
     {
@@ -24,12 +23,12 @@ public static class Renderer
             UiRenderer();
             BulletsRenderer();
             ExplosionsRenderer();
-            CollisionPreviewRenderer();
-            //EntitiesRenderer();
+            //CollisionPreviewRenderer();
+            EntitiesRenderer();
             PlayersRenderer();
-            //DebugMapTilePositionRenderer();    // * DEBUG FOR TILE IN TILE MAP POSITION SYNCH
-            DebugMapTileRenderer();
-            DebugPivotRenderer();           // * DEBUG FOR PIVOT POSITION
+            //DebugMapTilePositionRenderer();   // * DEBUG FOR TILE IN TILE MAP POSITION SYNCH
+            //DebugMapTileRenderer();           // * DEBUG FOR TILE PRESENCE (@)
+            DebugPivotRenderer();               // * DEBUG FOR PIVOT POSITION
             //CollisionCheck();
             Thread.Sleep(renderDelay);
         }
@@ -124,7 +123,7 @@ public static class Renderer
             for (int i = 0; i < explosions.Count; i++)
             {
                 SetCursorPosition(explosions[i].posX, explosions[i].posY);
-                if (!explosions[i].isExploded) Write(explosionGfxStart);
+                if (!explosions[i].isExploded) Write(explosionGfxStart); // ! Check index out of range error
                 else Write(explosionGfxEnd);
             }
         }
@@ -149,14 +148,18 @@ public static class Renderer
 
     static void CollisionPreviewRenderer()
     {
-        for (int y = 1; y < Map.tiles.GetLength(1); y++)        // Iterate through each row(y)
+        // Save a copy of the original tiles array in order to avoid asynch changed during the rendering nested loop
+        Array.Copy(Map.tiles, Map.tilesCopy, Map.tiles.Length);
+
+        for (int y = 1; y < Map.tilesCopy.GetLength(1); y++)        // Iterate through each row(y)
         {
-            for (int x = 1; x < Map.tiles.GetLength(0); x++)    // Iterate through each column(x) in the current row(y)
+            for (int x = 1; x < Map.tilesCopy.GetLength(0); x++)    // Iterate through each column(x) in the current row(y)
             {
-                if (Map.tiles[x, y] != null)
+                if (Map.tilesCopy[x, y] != null)
                 {
                     ForegroundColor = ConsoleColor.Red;
-                    SetCursorPosition(x + Map.tiles[x, y].parent.direction.x, y + Map.tiles[x, y].parent.direction.y);
+                    SetCursorPosition(x + Map.tilesCopy[x, y].parent.direction.x, y + Map.tilesCopy[x, y].parent.direction.y);
+                    // ! Check missing reference error | looks fine
                     Write("#");
                 }
             }
@@ -228,16 +231,16 @@ public static class Renderer
 
     static void EntitiesRenderer()
     {
-        for (int i = 0; i < cars.Count; i++)
+        for (int i = 0; i < entities.Count; i++)
         {
             // * New for loop //
             // ! Check if cars count > 0 ??? | Check if cars[i].tiles != null ???
-            for (int y = 0; y < cars[i].tiles.GetLength(0); y++)        // Iterate through each row(y)
+            for (int y = 0; y < entities[i].tiles.GetLength(0); y++)        // Iterate through each row(y)
             {
-                for (int x = 0; x < cars[i].tiles.GetLength(1); x++)    // Iterate through each column(x) in the current row(y)
+                for (int x = 0; x < entities[i].tiles.GetLength(1); x++)    // Iterate through each column(x) in the current row(y)
                 {
-                    SetCursorPosition(cars[i].tiles[y, x].posX, cars[i].tiles[y, x].posY);
-                    Write(cars[i].tiles[y, x].gfx); // Read and Write char gfx value from the Tile
+                    SetCursorPosition(entities[i].tiles[y, x].posX, entities[i].tiles[y, x].posY);
+                    Write(entities[i].tiles[y, x].gfx); // Read and Write char gfx value from the Tile
                 }
                 UiInputRender();
             }

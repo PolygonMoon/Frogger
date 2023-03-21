@@ -34,48 +34,38 @@ public class Tile
 
     public bool CheckTileCollision(Direction newDirection)
     {
-        return true;    // ! WORK UNTIL HERE
-        // Debug Actual Tile position in MapTile
-        Tile actualTile = Map.tiles[posX, posY];
-        // if (actualTile != null)
-        // {
-        //     ForegroundColor = ConsoleColor.Red;
-        //     SetCursorPosition(actualTile.posX + newDirection.x, actualTile.posY + newDirection.y);
-        //     Write("T");
-        // }
+        //return true;    // ! WORK UNTIL HERE
 
-
-        if (actualTile.posX + newDirection.x < mapLenghtX + mapStartX - 1
-                        && actualTile.posY + newDirection.y < mapLenghtY + mapStartY - 1
-                        && actualTile.posX + newDirection.x > mapStartX
-                        && actualTile.posY + newDirection.y > mapStartY)
+        // * Avoid collision check if tiles is on map limits
+        if (posX + newDirection.x < mapLenghtX + mapStartX - 1
+                        && posY + newDirection.y < mapLenghtY + mapStartY - 1
+                        && posX + newDirection.x > mapStartX
+                        && posY + newDirection.y > mapStartY)
         {
+            //return true;
             // Debug Next Tile direction in MapTile
-            Tile nextTile = Map.tiles[posX + newDirection.x, posY + newDirection.y];
-            if (nextTile != null && nextTile.tileType != tileType)
-            {
-                ForegroundColor = ConsoleColor.Green;
-                SetCursorPosition(nextTile.posX, nextTile.posY);
-                Write("+");
-                return true;
-            }
+            //return true;
 
-            if (nextTile != null && nextTile.tileType != tileType)
+            Tile nextTile = Map.tiles[posX + newDirection.x, posY + newDirection.y];
+            //return true;
+
+            if (Map.tiles[posX + newDirection.x, posY + newDirection.y] == null
+            || Map.tiles[posX + newDirection.x, posY + newDirection.y].tileType == parent.entityType)
             {
-                SetCursorPosition(40, mapLenghtY + mapStartY - 1);
-                Write("NO COLLISION DETECTED");
+                //ForegroundColor = ConsoleColor.Red;
+                //SetCursorPosition(posX + newDirection.x, posY + newDirection.y);
+                //Write("+");
+                //ForegroundColor = ConsoleColor.Gray;
+
                 return true;
             }
             else
             {
-                SetCursorPosition(40, mapLenghtY + mapStartY - 1);
-                Write("SKIT MAP LIMIT");
-                // Collision Handler by Switch EntityType type
-                return true;
+                // TODO Manage collision with different entity type
+                return false;
             }
-            return true;
         }
-        else return true;
+        else return true;   // * Skipping collisio due to map limits
 
 
 

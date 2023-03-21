@@ -202,7 +202,7 @@ public class Entity
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
                     tiles[x, y].Move(newDirection);
-                    // ! Subscribing the tile after the movement
+                    // ! Subscribing the tile after the movement | Need to be subscribed each frame !?
                     Map.SubscribeMapTile(tiles[x, y]);
                 }
             }
@@ -216,10 +216,10 @@ public class Entity
     bool CheckEntityCollision(Direction newDirection)
     {
         bool canTilesMove = true;
-        // Iterate within Entity Tiles and check next tile status by movemenet direction
-        for (int x = 0; x < tiles.GetLength(0); x++)
+        // Iterate within Entity Tiles and check next tile status by movemenet direction for each tile
+        for (int y = 0; y < tiles.GetLength(1); y++)
         {
-            for (int y = 0; y < tiles.GetLength(1); y++)
+            for (int x = 0; x < tiles.GetLength(0); x++)
             {
                 //SetCursorPosition(40, mapLenghtY + mapStartY - 1);
                 //Write("CHECKING COLLISION");
