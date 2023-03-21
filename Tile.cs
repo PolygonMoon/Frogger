@@ -14,9 +14,6 @@ public class Tile
 
     public void Move(Direction newDirection)
     {
-        // UnSubscribe the tile before the movement | // ! TESTING
-        Map.UnSubscribeMapTile(this);
-
         // Check X Map Limits
         if (posX + newDirection.x >= mapStartX + mapLenghtX) posX = mapStartX;
         else if (posX + newDirection.x < mapStartX) posX = mapStartX + mapLenghtX - 1;  // -1 is used to avoid scroll bar issues
@@ -29,10 +26,6 @@ public class Tile
             posX += newDirection.x;
             posY += newDirection.y;
         }
-        // UnSubscribe the tile after the movement | // ! TESTING | precision issue here
-        //Map.UnSubscribeMapTile(this);
-        // Subscribe the tile after the movement
-        Map.SubscribeMapTile(this);
     }
 
     public bool CheckTileCollision(Direction newDirection)

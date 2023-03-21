@@ -21,7 +21,7 @@ public class Entity
     Entity? collision = null;
 
     // Tiles Status
-    public Tile[,] tiles = new Tile[1,1];
+    public Tile[,] tiles = new Tile[1, 1];
 
     // Spawn Setup  // ! Not needed ??? | Directly use posX,posY within spawn method
     public int spawnX;
@@ -156,10 +156,20 @@ public class Entity
             if (posX < mapLenghtX + mapStartX
                 && posY < mapLenghtY + mapStartY
                 && posX > mapStartX
-                && posY > mapStartY)
+                && posY > mapStartY - 1)
             {
                 posX += newDirection.x;
                 posY += newDirection.y;
+
+                // Iterate within each entity tiles an UnSubscribe it
+                for (int x = 0; x < tiles.GetLength(0); x++)
+                {
+                    for (int y = 0; y < tiles.GetLength(1); y++)
+                    {
+                        // UnSubscribe the tile before the movement
+                        Map.UnSubscribeMapTile(tiles[x, y]);
+                    }
+                }
 
                 // Iterate within each entity tiles an move it
                 for (int x = 0; x < tiles.GetLength(0); x++)
@@ -167,6 +177,9 @@ public class Entity
                     for (int y = 0; y < tiles.GetLength(1); y++)
                     {
                         tiles[x, y].Move(newDirection);
+
+                        // Subscribe the tile after the movement
+                        Map.SubscribeMapTile(tiles[x, y]);
                     }
                 }
                 entityCanMove = false;    // Reset move capability
@@ -182,6 +195,7 @@ public class Entity
         bool isMoveValid = false;
         // Check Entity next movement collision by running a collision check to all entitiy tiles
         isMoveValid = CheckEntityCollision(newDirection);
+        //isMoveValid = true;   // * Used for Debug purpose only
 
         // == MOVE ENTITY RULES
         if (isMoveValid)
@@ -196,12 +210,25 @@ public class Entity
             posX += newDirection.x;
             posY += newDirection.y;
 
+            // Iterate within each entity tiles an UnSubscribe it
+            for (int x = 0; x < tiles.GetLength(0); x++)
+            {
+                for (int y = 0; y < tiles.GetLength(1); y++)
+                {
+                    // UnSubscribe the tile before the movement
+                    Map.UnSubscribeMapTile(tiles[x, y]);
+                }
+            }
+
             // Iterate within each entity tiles an move it
             for (int x = 0; x < tiles.GetLength(0); x++)
             {
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
-                    tiles[x, y].Move(newDirection);     // <= Each tile is UnSubscribing and Subscribing to the MapTile here 
+                    tiles[x, y].Move(newDirection);     // <= Each tile is UnSubscribing and Subscribing to the MapTile here
+
+                    // Subscribe the tile after the movement
+                    Map.SubscribeMapTile(tiles[x, y]);
                 }
             }
             entityCanMove = false;  // Reset move capability
@@ -222,7 +249,7 @@ public class Entity
             {
                 // Check if actual entity tile can move due to collision check result
                 if (tiles[x, y] != null) canTilesMove = tiles[x, y].CheckTileCollision(newDirection);
-                if (!canTilesMove) return false; 
+                if (!canTilesMove) return false;
             }
         }
         // If no collisions are detected => All tiles can move = Entity can move

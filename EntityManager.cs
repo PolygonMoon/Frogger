@@ -5,7 +5,7 @@ using static Game;
 public static class EntityManager
 {
     // = Brain Setup
-    const int brainDelay = 64; // Define Brain Refresh Delay | Default value 16ms = 60 FPS
+    const int brainDelay = 16; // Define Brain Refresh Delay | Default value 16ms = 60 FPS
     public static float brainFps;
 
     // = Entity Manager

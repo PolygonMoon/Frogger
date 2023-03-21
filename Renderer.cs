@@ -25,10 +25,10 @@ public static class Renderer
             ExplosionsRenderer();
             //CollisionPreviewRenderer();         // ! Need some fix
             //EntitiesRenderer();
-            PlayersRenderer();
-            //DebugMapTilePositionRenderer();   // * DEBUG FOR TILE IN TILE MAP POSITION SYNCH
-            DebugMapTileRenderer();           // * DEBUG FOR TILE PRESENCE (@)
-            DebugPivotRenderer();               // * DEBUG FOR PIVOT POSITION
+            //PlayersRenderer();
+            //DebugMapTilePositionRenderer();   // DEBUG FOR TILE IN TILE MAP POSITION SYNCH
+            DebugMapTileRenderer();             // DEBUG FOR TILE PRESENCE (@)  // ! Need fix | missing tiles
+            DebugPivotRenderer();               // DEBUG FOR PIVOT POSITION
             //CollisionCheck();
             Thread.Sleep(renderDelay);
         }
@@ -214,7 +214,7 @@ public static class Renderer
             if (entities[i].posX < mapLenghtX
                 && entities[i].posY < mapLenghtY + mapStartY
                 && entities[i].posX > mapStartX
-                && entities[i].posY > mapStartY)
+                && entities[i].posY > mapStartY - 1)
             {
                 SetCursorPosition(entities[i].posX, entities[i].posY);
                 Write("P");
@@ -227,7 +227,7 @@ public static class Renderer
             if (players[i].posX < mapLenghtX
                 && players[i].posY < mapLenghtY + mapStartY
                 && players[i].posX > mapStartX
-                && players[i].posY > mapStartY)
+                && players[i].posY > mapStartY - 1)
             {
                 SetCursorPosition(players[i].posX, players[i].posY);
                 Write("P");
