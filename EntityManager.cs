@@ -25,20 +25,6 @@ public static class EntityManager
                {
                    while (Game.isRunning)
                    {
-                       // ! Updating MapTile array with an new empty array | TESTING PURPOSTE
-                       // Tiles will be ReSubscribe to the maptile within the MoveEntity() method
-                       //    Map.tiles = new Tile[Game.mapStartX + Game.mapLenghtX, Game.mapStartY + Game.mapLenghtY];
-                       //    for (int e = 0; e < entities.Count; e++)    // Force all tiles subscribing for each entity every entity brain update
-                       //    {
-                       //        if (entities[e].isAlive)     // Check if entity is alive
-                       //        {
-                       //            foreach (var tile in entities[e].tiles)
-                       //            {
-                       //                Map.SubscribeMapTile(tile);
-                       //            }
-                       //        }
-                       //    }
-
                        // Move all alive entities
                        for (int e = 0; e < entities.Count; e++)    // Iterate through entities list
                        {

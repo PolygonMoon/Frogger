@@ -27,7 +27,7 @@ public static class Renderer
             //EntitiesRenderer();
             //PlayersRenderer();
             //DebugMapTilePositionRenderer();   // DEBUG FOR TILE IN TILE MAP POSITION SYNCH
-            DebugMapTileRenderer();             // DEBUG FOR TILE PRESENCE (@)  // ! Need fix | missing tiles
+            DebugMapTileRenderer();             // DEBUG FOR TILE PRESENCE (@)
             DebugPivotRenderer();               // DEBUG FOR PIVOT POSITION
             //CollisionCheck();
             Thread.Sleep(renderDelay);
