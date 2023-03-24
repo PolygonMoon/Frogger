@@ -134,7 +134,7 @@ public static class Game
         car2.Instantiate(mapLenghtX / 2 - 20, mapStartY + 4, Entity.EntityType.Enemy, Entity.MoveType.Static, 1);
         cars.Add(car2);
         entities.Add(car2);
-        
+
         Entity car3 = new Entity();
         car3.name = "Car_3";
         car3.Instantiate(mapLenghtX / 2 - 20, mapStartY + 8, Entity.EntityType.Enemy, Entity.MoveType.Left, 2);
@@ -152,7 +152,7 @@ public static class Game
         car5.Instantiate(mapLenghtX - 10, mapStartY + 2, Entity.EntityType.Enemy, Entity.MoveType.Down, 1);
         cars.Add(car5);
         entities.Add(car5);
-        
+
 
         WriteLine("- Walls Initialization");
         // Setup Wall
@@ -164,6 +164,17 @@ public static class Game
         };
         wall.Instantiate(mapStartX + 2, mapStartY + 2, Entity.EntityType.Wall, Entity.MoveType.Static, 5);
         entities.Add(wall);
+
+        WriteLine("- Water Initialization");
+        // Setup Wall
+        Entity water = new Entity();
+        water.name = "Wall_0";
+        water.gfx = new char[,]{
+            { '-', '-', '-', '-', '-', '-'},
+            { '-', '-', '-', '-', '-', '-'}
+        };
+        water.Instantiate(mapStartX + 2, mapLenghtY - 4, Entity.EntityType.Water, Entity.MoveType.Static, 5);
+        waters.Add(water);
     }
 
 

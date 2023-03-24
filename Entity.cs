@@ -52,6 +52,7 @@ public class Entity
     {
         Wall,       // Used by Wall & Car   | Player can touch it without die | Block the movement collision check
         Walkable,   // Used by Sidewalks    | Anything can walk over
+        Water,
         Enemy,      // Used by Enemy & Car  | Kill Player if touched
         Player,     // Used by Player       | *Player*
         // ! Move Pickable to a new class?
@@ -101,7 +102,7 @@ public class Entity
         {
             for (int y = 0; y < tiles.GetLength(1); y++)
             {
-                Tile newTile = new Tile();
+                Tile? newTile = new Tile();
                 newTile.parent = this;              // Set Tile Parent to this Entity
                 newTile.tileType = entityType;
                 // If type Player draw different Gfx
@@ -110,6 +111,8 @@ public class Entity
 
                 newTile.posX = posX + x;            // Offset the Tile position by the x index value
                 newTile.posY = posY + y;            // Offset the Tile position by the y index value
+                newTile.indexX = x;                 // Index of the Tile inside the entity tiles array | x
+                newTile.indexY = y;                 // Index of the Tile inside the entity tiles array | y
                 tiles[x, y] = newTile;              // Copy the new Tile to the tiles Tile
                 Map.SubscribeMapTile(newTile);      // Subscribe the new Tile within the MapTile
             }
@@ -145,9 +148,8 @@ public class Entity
     public bool MovePlayer(Direction newDirection)
     {
         bool isMoveValid = false;
-        //direction = newDirection;
-        //isMoveValid = CheckCollision(newDirection);
-        isMoveValid = true;
+        isMoveValid = CheckEntityCollision(newDirection);
+        //isMoveValid = true;
 
         // == MOVE PLAYER RULES
         if (isMoveValid)
@@ -158,6 +160,7 @@ public class Entity
                 && posX > mapStartX
                 && posY > mapStartY - 1)
             {
+                // Move Player Pivot
                 posX += newDirection.x;
                 posY += newDirection.y;
 
@@ -191,7 +194,8 @@ public class Entity
     }
 
     public void MoveEntity(Direction newDirection)
-    {   // Declare a starting false move validity | Will be overwritten by collision check result
+    {
+        // Declare a starting false move validity | Will be overwritten by collision check result
         bool isMoveValid = false;
         // Check Entity next movement collision by running a collision check to all entitiy tiles
         isMoveValid = CheckEntityCollision(newDirection);
@@ -256,9 +260,25 @@ public class Entity
         return true;
     }
 
-    void Die()
+    public void Die()
     {
-        // Simply Destroy the entity | Tiles death, damage and explosion are managed in Tile class
+        // Iterate through tiles and Explode them | Tiles death, damage and explosion are managed in Tile class
+
+        for (int y = 0; y < tiles.GetLength(1); y++)
+        {
+            for (int x = 0; x < tiles.GetLength(0); x++)
+            {
+                if (tiles[x, y] != null)
+                {
+                    tiles[x, y].Explode(tiles[x, y]);
+                    // Set the tile in the entity tiles array as null
+                    tiles[x, y] = null;
+                }
+            }
+        }
+        // Remove the Entity from the entities List
+        if (entityType == EntityType.Enemy)EntityManager.entities.Remove(this);
+        if (entityType == EntityType.Player) EntityManager.players.Remove(this);
     }
 
     // ! Add EnemyBrain() for shooting by shootDelay?

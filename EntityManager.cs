@@ -13,6 +13,7 @@ public static class EntityManager
     public static List<Entity> entities = new List<Entity>();   // Temp, contain all entities
     public static List<Entity> cars = new List<Entity>();
     public static List<Entity> enemies = new List<Entity>();
+    public static List<Entity> waters = new List<Entity>();
     public static List<Entity> trunks = new List<Entity>();
     // ? Use a single Pickable entities List? (Coins, PowerUp, LifeUp, Etc...)
     public static List<Entity> coins = new List<Entity>();

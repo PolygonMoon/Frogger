@@ -3,6 +3,7 @@
 
 public class Bullet
 {
+    // ! CONVERT BULLET TO TILE?
     // Bullet Status
     public int posX;
     public int posY;

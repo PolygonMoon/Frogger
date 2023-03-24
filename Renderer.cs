@@ -21,13 +21,14 @@ public static class Renderer
             frame++;    // Add a frame to the frame counter for debug purpose
             Clear();
             UiRenderer();
+            WaterRenderer();
             BulletsRenderer();
             ExplosionsRenderer();
             //CollisionPreviewRenderer();         // ! Need some fix
-            //EntitiesRenderer();
-            //PlayersRenderer();
+            EntitiesRenderer();
+            PlayersRenderer();
             //DebugMapTilePositionRenderer();   // DEBUG FOR TILE IN TILE MAP POSITION SYNCH
-            DebugMapTileRenderer();             // DEBUG FOR TILE PRESENCE (@)
+            //DebugMapTileRenderer();             // DEBUG FOR TILE PRESENCE (@)
             DebugPivotRenderer();               // DEBUG FOR PIVOT POSITION
             //CollisionCheck();
             Thread.Sleep(renderDelay);
@@ -54,34 +55,37 @@ public static class Renderer
         SetCursorPosition(20, 1);
         Write($"EntityBrain FPS: {EntityManager.brainFps.ToString("0.00")}");
 
-        SetCursorPosition(45, 0);
-        Write($"P.Shoot:{players[0].gun.bullets.Count} / {players[0].gun.bulletAmount} | G.Shoot:{bullets.Count}");
-        SetCursorPosition(45, 1);
-        Write($"InputTimer:{inputTimer} / {inputDelay} | {InputManager.inputReady}");
+        if (players.Count > 0)
+        {
+            SetCursorPosition(45, 0);
+            Write($"P.Shoot:{players[0].gun.bullets.Count} / {players[0].gun.bulletAmount} | G.Shoot:{bullets.Count}");
+            SetCursorPosition(45, 1);
+            Write($"InputTimer:{inputTimer} / {inputDelay} | {InputManager.inputReady}");
 
-        SetCursorPosition(75, 0);
-        Write($"G.Explosion Count:{explosions.Count}");
-        SetCursorPosition(75, 1);
-        Write($"P.Shoot Timer:{players[0].gun.shootTimer} / {players[0].gun.shootDelay} | {players[0].gun.canShoot}");
+            SetCursorPosition(75, 0);
+            Write($"G.Explosion Count:{explosions.Count}");
+            SetCursorPosition(75, 1);
+            Write($"P.Shoot Timer:{players[0].gun.shootTimer} / {players[0].gun.shootDelay} | {players[0].gun.canShoot}");
 
-        SetCursorPosition(0, 3);
-        if (bullets.Count > 0) WriteLine("Rendering Bullets");
-        SetCursorPosition(20, 3);
-        if (explosions.Count > 0) WriteLine("Rendering Explosions");
+            SetCursorPosition(0, 3);
+            if (bullets.Count > 0) WriteLine("Rendering Bullets");
+            SetCursorPosition(20, 3);
+            if (explosions.Count > 0) WriteLine("Rendering Explosions");
 
-        // Debug Entity
-        SetCursorPosition(0, 4);
-        WriteLine($"Entity Count: {entities.Count}");
+            // Debug Entity
+            SetCursorPosition(0, 4);
+            WriteLine($"Entity Count: {entities.Count}");
 
-        // Debug TileMap
-        SetCursorPosition(20, 4);
-        WriteLine($"Map tiles.Length {Map.tiles.Length} | Temp.Car Pivot Tile position");
+            // Debug TileMap
+            SetCursorPosition(20, 4);
+            WriteLine($"Map tiles.Length {Map.tiles.Length} | Score: | Life: | Time:");
 
-        // SetCursorPosition(20, 4);    // ! This is used for debug by method call on enemy move event
+            // SetCursorPosition(20, 4);    // ! This is used for debug by method call on enemy move event
 
-        // Debug Player Position
-        SetCursorPosition(0, mapLenghtY + mapStartY - 2);
-        Write($"X: {players[0].posX} | Y: {players[0].posY} | X: {entities[0].posX} | Y: {entities[0].posY}");
+            // Debug Player Position
+            SetCursorPosition(0, mapLenghtY + mapStartY - 2);
+            Write($"X: {players[0].posX} | Y: {players[0].posY} | X: {entities[0].posX} | Y: {entities[0].posY}");
+        }
         SetCursorPosition(0, mapLenghtY + mapStartY - 1);
         Write($"|===| MapLimit X: {mapStartX},{mapLenghtX + mapStartX} | Y: {mapStartY},{mapLenghtY + mapStartY}");
 
@@ -235,6 +239,28 @@ public static class Renderer
         }
         ForegroundColor = ConsoleColor.Gray;
         UiInputRender();
+    }
+
+    static void WaterRenderer()
+    {
+        //BackgroundColor = ConsoleColor.DarkBlue;
+        ForegroundColor = ConsoleColor.DarkBlue;
+        for (int i = 0; i < waters.Count; i++)
+        {
+            // * New for loop //
+            // ! Check if cars count > 0 ??? | Check if cars[i].tiles != null ???
+            for (int y = 0; y < waters[i].tiles.GetLength(0); y++)        // Iterate through each row(y)
+            {
+                for (int x = 0; x < waters[i].tiles.GetLength(1); x++)    // Iterate through each column(x) in the current row(y)
+                {
+                    SetCursorPosition(waters[i].tiles[y, x].posX, waters[i].tiles[y, x].posY);
+                    Write(waters[i].tiles[y, x].gfx); // Read and Write char gfx value from the Tile
+                }
+                UiInputRender();
+            }
+        }
+        //BackgroundColor = ConsoleColor.Black;
+        ForegroundColor = ConsoleColor.Gray;
     }
 
     static void EntitiesRenderer()

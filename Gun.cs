@@ -27,6 +27,7 @@ public class Gun
                        if (shootTimer < shootDelay) shootTimer++;
                        if (shootTimer >= shootDelay) canShoot = true;
 
+                       // ! TODO Move this on a dedicated method and excecute by Entity Manager loop?
                        if (bullets.Count > 0)
                        {
                            for (int i = 0; i < bullets.Count; i++)
@@ -34,6 +35,7 @@ public class Gun
                                // Collision Detection
                                if (bullets[i].posY > Game.mapStartY && bullets[i].posY < Game.mapLenghtY + Game.mapStartY) //! need -1?
                                {
+                                   // ! TODO Read Direction from bullet shooter?
                                    if (bullets[i].isPlayer) { bullets[i].posY -= 1; }
                                    else bullets[i].posY += 1;
                                }
