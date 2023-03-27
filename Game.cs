@@ -106,10 +106,11 @@ public static class Game
         player.Instantiate(player.spawnX, player.spawnY, Entity.EntityType.Player, Entity.MoveType.Free, 1);
         player.gun = new Gun();
         player.gun.owner = player;
+        player.gun.direction = player.DefineDirection(Entity.MoveType.Up);
         players.Add(player);
         player.gun.BulletHandler();
 
-        // Setup First Player
+        // Setup Second Player
         charLength = charGfxBottomA.Length;
         player.name = "Player_1";
         Entity player2 = new Entity();
@@ -118,6 +119,7 @@ public static class Game
         player2.Instantiate(player2.spawnX, player2.spawnY, Entity.EntityType.Player, Entity.MoveType.Free, 1);
         player2.gun = new Gun();
         player2.gun.owner = player2;
+        player2.gun.direction = player2.DefineDirection(Entity.MoveType.Up);
         players.Add(player2);
         player2.gun.BulletHandler();
 

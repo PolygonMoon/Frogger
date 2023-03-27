@@ -19,6 +19,9 @@ public static class EntityManager
     public static List<Entity> coins = new List<Entity>();
     public static List<Entity> powerUps = new List<Entity>();
 
+    // = Bullets Manager
+    public static List<Tile> bullets = new List<Tile>();
+
     // === BRAIN LOOP THREAD
     public static void MovementHandler()
     {

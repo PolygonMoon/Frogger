@@ -109,7 +109,7 @@ public static class Renderer
         {
             for (int i = 0; i < bullets.Count; i++)
             {
-                if (bullets[i].isExploded) bullets.RemoveAt(i);
+                if (!bullets[i].isAlive) bullets.RemoveAt(i);
                 else
                 {
                     SetCursorPosition(bullets[i].posX, bullets[i].posY);

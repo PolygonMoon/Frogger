@@ -103,7 +103,7 @@ public static class InputManager
                                         {
                                             if (players[i].posY > mapStartY && players[i].gun.canShoot)
                                             {
-                                                players[i].gun.Shoot(players[i].posX + 2, players[i].posY - 1, players[i], true);
+                                                players[i].gun.Shoot(players[i].posX + 2, players[i].posY - 1, players[i]);
                                             }
                                         }
                                     }

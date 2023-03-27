@@ -15,10 +15,10 @@ public class Gun
     public int maxBullets = 5;        // Max contemporary bullets count
     public int bulletSpeed = 30;      // 16 | Milliseconds between bullets movement
     public int shootDelay = 5;        // Milliseconds between bullets shoot
-    public string bulletGfx = "|";
+    public char bulletGfx = '|';
 
     // Local Bullets List
-    public List<Bullet> bullets = new List<Bullet>();
+    public List<Tile> bullets = new List<Tile>();
 
     public void BulletHandler()
     {
@@ -34,17 +34,23 @@ public class Gun
                        {
                            for (int i = 0; i < bullets.Count; i++)
                            {
-                               // Collision Detection
-                               if (bullets[i].posY > Game.mapStartY && bullets[i].posY < Game.mapLenghtY + Game.mapStartY) //! need -1?
+                               // UnSubscribe the tile before the movement
+                               Map.UnSubscribeMapTile(bullets[i]);
+                               bool isMoveValid = false;
+                               isMoveValid = bullets[i].CheckTileCollision(direction);
+
+                               if (isMoveValid && bullets[i].posY > Game.mapStartY && bullets[i].posY < Game.mapLenghtY + Game.mapStartY) //! need -1?
                                {
-                                   // ! TODO Read Direction from bullet shooter?
-                                   if (bullets[i].isPlayer) { bullets[i].posY -= 1; }
-                                   else bullets[i].posY += 1;
+                                   bullets[i].Move(direction);
+                                   // Subscribe the tile after the movement
+                                   Map.SubscribeMapTile(bullets[i]);
                                }
                                else
                                {
                                    NewExplosion(bullets[i].posX, bullets[i].posY);
-                                   bullets[i].isExploded = true;
+                                   bullets[i].isAlive = false;
+                                   // UnSubscribe the tile after the collision
+                                   Map.UnSubscribeMapTile(bullets[i]);
                                    bullets.RemoveAt(i);
                                }
                            }
@@ -54,17 +60,17 @@ public class Gun
                });
     }
 
-    // ! CONVERT BULLET TO ENTITY OR TILE?
-    public void Shoot(int spawnX, int spawnY, Entity shooter, bool isPlayer)
+    public void Shoot(int spawnX, int spawnY, Entity shooter)
     {
         {
-            Bullet newBullet = new Bullet();
+            Tile newBullet = new Tile();
             newBullet.posX = spawnX;
             newBullet.posY = spawnY;
-            newBullet.isPlayer = isPlayer;
-            newBullet.shooter = shooter;
+            newBullet.gfx = bulletGfx;
+            newBullet.tileType = Entity.EntityType.Bullet;
+            newBullet.parent = shooter;
             bullets.Add(newBullet);
-            ShootManager.bullets.Add(newBullet);
+            EntityManager.bullets.Add(newBullet);
             // Reset shooting capability 
             canShoot = false;
             shootTimer = 0;

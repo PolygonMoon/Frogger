@@ -20,8 +20,6 @@ public static class ShootManager
         public int explosionTimer;
     }
 
-    // Global Bullets List
-    public static List<Bullet> bullets = new List<Bullet>();
     // Global Explosion List
     public static List<Explosion> explosions = new List<Explosion>();
 

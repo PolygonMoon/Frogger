@@ -55,6 +55,7 @@ public class Entity
         Water,
         Enemy,      // Used by Enemy & Car  | Kill Player if touched
         Player,     // Used by Player       | *Player*
+        Bullet,
         // ! Move Pickable to a new class?
         CoinUp,
         SpeedUp,
@@ -119,7 +120,7 @@ public class Entity
         }
     }
 
-    Direction DefineDirection(MoveType type)
+    public Direction DefineDirection(MoveType type)
     {
         switch (type)
         {
@@ -230,7 +231,7 @@ public class Entity
             {
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
-                    tiles[x, y].Move(newDirection);     // <= Each tile is UnSubscribing and Subscribing to the MapTile here
+                    tiles[x, y].Move(newDirection);
 
                     // Subscribe the tile after the movement
                     Map.SubscribeMapTile(tiles[x, y]);
