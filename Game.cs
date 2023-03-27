@@ -168,9 +168,9 @@ public static class Game
         entities.Add(wall);
 
         WriteLine("- Water Initialization");
-        // Setup Wall
+        // Setup Water
         Entity water = new Entity();
-        water.name = "Wall_0";
+        water.name = "Water_0";
         water.gfx = new char[,]{
             { '-', '-', '-', '-', '-', '-'},
             { '-', '-', '-', '-', '-', '-'}
