@@ -18,7 +18,7 @@ public class Entity
     public bool entityCanMove = false;
 
     // Collision status
-    Entity? collision = null;
+    Entity? collision = null;   // ! NOT USED - Check if is needed
 
     // Tiles Status
     public Tile[,] tiles = new Tile[1, 1];
@@ -84,7 +84,7 @@ public class Entity
         posY = y;
 
         TilesInit();
-        DefineDirection(moveType);
+        direction = DefineDirection(moveType);
     }
 
     public void TilesInit()
@@ -119,7 +119,7 @@ public class Entity
         }
     }
 
-    void DefineDirection(MoveType type)
+    Direction DefineDirection(MoveType type)
     {
         switch (type)
         {
@@ -142,6 +142,7 @@ public class Entity
                 // Not managed case
                 break;
         }
+        return direction;
     }
 
     // === RUN-TIME METHODS

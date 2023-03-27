@@ -7,7 +7,9 @@ public class Gun
     public bool canShoot = true;
     public int shootTimer = 0;
     public int bulletAmount = 20;
-    public Entity? owner;   // Gun owner
+    public int damage = 1;
+    public Entity? owner;           // Gun owner
+    public Direction direction;     // TODO Define direction by using DefineDirection(owner.moveType)
 
     // Gun Setup
     public int maxBullets = 5;        // Max contemporary bullets count
@@ -52,7 +54,7 @@ public class Gun
                });
     }
 
-    // ! CONVERT BULLET TO ENTITY
+    // ! CONVERT BULLET TO ENTITY OR TILE?
     public void Shoot(int spawnX, int spawnY, Entity shooter, bool isPlayer)
     {
         {

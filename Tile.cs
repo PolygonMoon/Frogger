@@ -4,17 +4,20 @@ using static Game;
 
 public class Tile
 {
+    // Tile Status
     int hp;
     public int posX;
     public int posY;
+    public bool isAlive = true;
     // ! ADD x,y index ??? | Use to recover the tile position within entity tiles array
     public int indexX;
     public int indexY;
     public char gfx = 'O';
     public Entity? collision;
-    public Entity? parent;
+    public Entity? parent;      // Used to save parent Entity or Shooter
     public Entity.EntityType? tileType;
 
+    // === Tile Methods
     public void Move(Direction newDirection)
     {
         // Check X Map Limits
