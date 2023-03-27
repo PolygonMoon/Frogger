@@ -6,6 +6,12 @@ using static ShootManager;
 using static Renderer;
 using static UiTools;
 
+// TODO LIST
+// ! Make Enemy Shoot
+// ! Update water MapTile each cycle
+// ! Add Trunk Entity
+// ! Move Player Entity if over Trunk tiles // CHEAT HERE ??? | Move the player if inside water/trunk path to avoid tile overwrite on MapTile
+
 public static class Game
 {
     // = Player Status // * Extra Player Status is managed as ecxeption | Do not use normal Entity behaviour
