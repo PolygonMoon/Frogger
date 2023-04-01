@@ -9,7 +9,7 @@ public static class Renderer
     // = Renderer Setup
     static int frame = 0;
     static float frameRate;
-    const int renderDelay = 8; // Renderer FPS | 16 = 60fps
+    const int renderDelay = 16; // Renderer FPS | 16 = 60fps
 
     public static string activeEntity = "default entity";
 

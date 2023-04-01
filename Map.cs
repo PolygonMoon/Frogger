@@ -60,29 +60,6 @@ public static class Map
         tiles[x, y] = null;
     }
 
-    // public static void UpdateMapTile(Tile tileToUpdate, Direction oldPosition, Direction newPosition)
-    // {
-    //     // Debug Old Position
-    //     ForegroundColor = ConsoleColor.Red;
-    //     SetCursorPosition(tiles[oldPosition.x, oldPosition.y].posX, tiles[oldPosition.x, oldPosition.y].posY);
-    //     Write("P");
-
-    //     // Check X Map Limits
-    //     if (newPosition.x >= Game.mapStartX + Game.mapLenghtX) newPosition.x = Game.mapStartX;
-    //     else if (newPosition.x < Game.mapStartX) newPosition.x = Game.mapStartX + Game.mapLenghtX - 1;  // -1 is used to avoid scroll bar issues
-    //     // Check Y Map Limits
-    //     if (newPosition.y >= Game.mapStartY + Game.mapLenghtY) newPosition.y = Game.mapStartY;
-    //     else if (newPosition.y < Game.mapStartY) newPosition.y = Game.mapStartY + Game.mapLenghtY - 1;  // -1 is used to avoid scroll bar issues
-
-
-    //     tiles[oldPosition.x, oldPosition.y].posX = newPosition.x;
-    //     tiles[oldPosition.x, oldPosition.y].posY = newPosition.y; ;
-    //     //Debug New Position
-    //     ForegroundColor = ConsoleColor.Red;
-    //     SetCursorPosition(tiles[oldPosition.x, oldPosition.y].posX, tiles[oldPosition.x, oldPosition.y].posY);
-    //     Write("#");
-    // }
-
     public static Tile? GetTile(int posX, int posY)
     {
         Tile? nextTile = tiles[posX, posY];
