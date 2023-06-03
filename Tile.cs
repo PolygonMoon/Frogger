@@ -36,8 +36,8 @@ public class Tile
     public bool CheckTileCollision(Direction newDirection)
     {
         // * Excecute Collision Check only if entity tile is within map limits
-        if (posX + newDirection.x < mapLenghtX + mapStartX - 1
-            && posY + newDirection.y < mapLenghtY + mapStartY - 1
+        if (posX + newDirection.x < mapLenghtX + mapStartX
+            && posY + newDirection.y < mapLenghtY + mapStartY
             && posX + newDirection.x > mapStartX
             && posY + newDirection.y > mapStartY)
         {
@@ -50,6 +50,7 @@ public class Tile
             }
             // Skip collision between Bullet => Water
             else if (tileType == Entity.EntityType.Bullet && nextTile.tileType == Entity.EntityType.Water) return true;
+            // TODO Skip collision between Trunk => Water
             else
             {
                 // TODO Manage collision with different entity type
@@ -63,48 +64,56 @@ public class Tile
     public void CollisionHandler(Tile collidingTile, Tile collisionTile)
     {
         // TODO Manage different behaviour
-
-        // Enemy VS Wall
-        if (collidingTile.tileType == Entity.EntityType.Enemy && collisionTile.tileType == Entity.EntityType.Wall)
+        if (collidingTile.parent != null && collisionTile.parent != null)
         {
-            // Kill colliding entity | TEST PURPOSE
-            collidingTile.parent.Die();
-        }
-        // Enemy VS Player
-        if (collidingTile.tileType == Entity.EntityType.Enemy && collisionTile.tileType == Entity.EntityType.Player)
-        {
-            // Kill collision entity | TEST PURPOSE
-            collisionTile.parent.Die();
-        }
-        // Player VS Enemy
-        if (collidingTile.tileType == Entity.EntityType.Player && collisionTile.tileType == Entity.EntityType.Enemy)
-        {
-            // Kill colliding entity | TEST PURPOSE
-            collidingTile.parent.Die();
-        }
-        // Enemy VS Bullet
-        if (collidingTile.tileType == Entity.EntityType.Enemy && collisionTile.tileType == Entity.EntityType.Bullet)
-        {
-            // Kill colliding entity | TEST PURPOSE
-            collidingTile.parent.Die();
-        }
-        // Player VS Bullet
-        if (collidingTile.tileType == Entity.EntityType.Player && collisionTile.tileType == Entity.EntityType.Bullet)
-        {
-            // Kill colliding entity | TEST PURPOSE
-            collidingTile.parent.Die();
-        }
-        // Bullet VS Enemy
-        if (collidingTile.tileType == Entity.EntityType.Bullet && collisionTile.tileType == Entity.EntityType.Enemy)
-        {
-            // Kill collision entity | TEST PURPOSE
-            collisionTile.parent.Die();
-        }
-        // Bullet VS Player
-        if (collidingTile.tileType == Entity.EntityType.Bullet && collisionTile.tileType == Entity.EntityType.Player)
-        {
-            // Kill collision entity | TEST PURPOSE
-            collisionTile.parent.Die();
+            // Enemy VS Wall
+            if (collidingTile.tileType == Entity.EntityType.Enemy && collisionTile.tileType == Entity.EntityType.Wall)
+            {
+                // Kill colliding entity | TEST PURPOSE
+                collidingTile.parent.Die();
+            }
+            // Enemy VS Player
+            if (collidingTile.tileType == Entity.EntityType.Enemy && collisionTile.tileType == Entity.EntityType.Player)
+            {
+                // Kill collision entity | TEST PURPOSE
+                collisionTile.parent.Die();
+            }
+            // Player VS Enemy
+            if (collidingTile.tileType == Entity.EntityType.Player && collisionTile.tileType == Entity.EntityType.Enemy)
+            {
+                // Kill colliding entity | TEST PURPOSE
+                collidingTile.parent.Die();
+            }
+            // Enemy VS Bullet
+            if (collidingTile.tileType == Entity.EntityType.Enemy && collisionTile.tileType == Entity.EntityType.Bullet)
+            {
+                // Kill colliding entity | TEST PURPOSE
+                collidingTile.parent.Die();
+            }
+            // Player VS Bullet
+            if (collidingTile.tileType == Entity.EntityType.Player && collisionTile.tileType == Entity.EntityType.Bullet)
+            {
+                // Kill colliding entity | TEST PURPOSE
+                collidingTile.parent.Die();
+            }
+            // Player VS Water
+            if (collidingTile.tileType == Entity.EntityType.Player && collisionTile.tileType == Entity.EntityType.Water)
+            {
+                // Kill colliding entity | TEST PURPOSE
+                collidingTile.parent.Die();
+            }
+            // Bullet VS Enemy
+            if (collidingTile.tileType == Entity.EntityType.Bullet && collisionTile.tileType == Entity.EntityType.Enemy)
+            {
+                // Kill collision entity | TEST PURPOSE
+                collisionTile.parent.Die();
+            }
+            // Bullet VS Player
+            if (collidingTile.tileType == Entity.EntityType.Bullet && collisionTile.tileType == Entity.EntityType.Player)
+            {
+                // Kill collision entity | TEST PURPOSE
+                collisionTile.parent.Die();
+            }
         }
     }
 

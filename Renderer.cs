@@ -28,9 +28,9 @@ public static class Renderer
             EntitiesRenderer();
             PlayersRenderer();
             //DebugMapTilePositionRenderer();   // DEBUG FOR TILE IN TILE MAP POSITION SYNCH
-            //DebugMapTileRenderer();             // DEBUG FOR TILE PRESENCE (@)
+            //DebugMapTileRenderer();           // DEBUG FOR TILE PRESENCE (@)
             DebugPivotRenderer();               // DEBUG FOR PIVOT POSITION
-            //CollisionCheck();
+            //CollisionCheck();                 // ! Don't Exist, why is still here?
             Thread.Sleep(renderDelay);
         }
     }
@@ -55,37 +55,44 @@ public static class Renderer
         SetCursorPosition(20, 1);
         Write($"EntityBrain FPS: {EntityManager.brainFps.ToString("0.00")}");
 
+        // Debug Entity Info
+        SetCursorPosition(0, 4);
+        WriteLine($"Entity Count: {entities.Count}");
+
+        // Debug TileMap Info
+        SetCursorPosition(20, 4);
+        WriteLine($"Map tiles.Length {Map.tiles.Length} | Score: | Life: | Time:");
+
+        // Debug Player Info
         if (players.Count > 0)
         {
             SetCursorPosition(45, 0);
-            Write($"P.Shoot:{players[0].gun.bullets.Count} / {players[0].gun.bulletAmount} | G.Shoot:{bullets.Count}");
+            if (players.Count > 0) Write($"P.Shoot:{players[0].gun.bullets.Count} / {players[0].gun.bulletAmount} | G.Shoot:{bullets.Count}");
             SetCursorPosition(45, 1);
             Write($"InputTimer:{inputTimer} / {inputDelay} | {InputManager.inputReady}");
 
             SetCursorPosition(75, 0);
             Write($"G.Explosion Count:{explosions.Count}");
             SetCursorPosition(75, 1);
-            Write($"P.Shoot Timer:{players[0].gun.shootTimer} / {players[0].gun.shootDelay} | {players[0].gun.canShoot}");
+            if (players.Count > 0) Write($"P.Shoot Timer:{players[0].gun.shootTimer} / {players[0].gun.shootDelay} | {players[0].gun.canShoot}");
 
             SetCursorPosition(0, 3);
             if (bullets.Count > 0) WriteLine("Rendering Bullets");
             SetCursorPosition(20, 3);
             if (explosions.Count > 0) WriteLine("Rendering Explosions");
 
-            // Debug Entity
-            SetCursorPosition(0, 4);
-            WriteLine($"Entity Count: {entities.Count}");
-
-            // Debug TileMap
-            SetCursorPosition(20, 4);
-            WriteLine($"Map tiles.Length {Map.tiles.Length} | Score: | Life: | Time:");
-
             // SetCursorPosition(20, 4);    // ! This is used for debug by method call on enemy move event
 
             // Debug Player Position
             SetCursorPosition(0, mapLenghtY + mapStartY - 2);
-            Write($"X: {players[0].posX} | Y: {players[0].posY} | X: {entities[0].posX} | Y: {entities[0].posY}");
+            if (players.Count > 0) Write($"P.0 Pos X: {players[0].posX} | Y: {players[0].posY} | E.0 Pos X: {entities[0].posX} | Y: {entities[0].posY}");
         }
+        else
+        {
+            SetCursorPosition(0, mapLenghtY + mapStartY - 2);
+            Write($"=-NO PLAYERS ALIVE-= | E.0 Pos X: {entities[0].posX} | Y: {entities[0].posY}");
+        }
+
         SetCursorPosition(0, mapLenghtY + mapStartY - 1);
         Write($"|===| MapLimit X: {mapStartX},{mapLenghtX + mapStartX} | Y: {mapStartY},{mapLenghtY + mapStartY}");
 
@@ -162,16 +169,19 @@ public static class Renderer
                 if (Map.tilesCopy[x, y] != null)
                 {
                     Tile? tileToCheck = Map.tilesCopy[x, y];
-                    if (tileToCheck.posX + tileToCheck.parent.direction.x < mapLenghtX + mapStartX - 1
-                        && tileToCheck.posY + tileToCheck.parent.direction.y < mapLenghtY + mapStartY - 1
-                        && tileToCheck.posX + tileToCheck.parent.direction.x > mapStartX
-                        && tileToCheck.posY + tileToCheck.parent.direction.y > mapStartY)
+                    if (tileToCheck.parent != null)     // Prevent possible null entity parent of tile
                     {
-                        ForegroundColor = ConsoleColor.Red;
-                        SetCursorPosition(tileToCheck.posX + tileToCheck.parent.direction.x, tileToCheck.posY + tileToCheck.parent.direction.y);
-                        // ! Check missing reference error | looks fine | using MapTile array copy just for renderer
-                        // ! CHECK WRONG POSITION RENDERING | looks fine but its really slow
-                        Write("#");
+                        if (tileToCheck.posX + tileToCheck.parent.direction.x < mapLenghtX + mapStartX - 1
+                            && tileToCheck.posY + tileToCheck.parent.direction.y < mapLenghtY + mapStartY - 1
+                            && tileToCheck.posX + tileToCheck.parent.direction.x > mapStartX
+                            && tileToCheck.posY + tileToCheck.parent.direction.y > mapStartY)
+                        {
+                            ForegroundColor = ConsoleColor.Red;
+                            SetCursorPosition(tileToCheck.posX + tileToCheck.parent.direction.x, tileToCheck.posY + tileToCheck.parent.direction.y);
+                            // ! Check missing reference error | looks fine | using MapTile array copy just for renderer
+                            // ! CHECK WRONG POSITION RENDERING | looks fine but its really slow
+                            Write("#");
+                        }
                     }
                 }
                 ForegroundColor = ConsoleColor.Gray;
@@ -190,7 +200,7 @@ public static class Renderer
 
         foreach (var tile in Map.tiles)
         {
-            if (tile != null)
+            if (tile != null && tile.parent != null)
             {
                 ForegroundColor = ConsoleColor.White;
                 SetCursorPosition(tile.posX, tile.posY);
@@ -212,29 +222,35 @@ public static class Renderer
     static void DebugPivotRenderer()
     {
         // Debug Entities Pivot
-        ForegroundColor = ConsoleColor.DarkYellow;
-        for (int i = 0; i < entities.Count; i++)
+        if (entities.Count > 0)
         {
-            if (entities[i].posX < mapLenghtX
-                && entities[i].posY < mapLenghtY + mapStartY
-                && entities[i].posX > mapStartX
-                && entities[i].posY > mapStartY - 1)
+            ForegroundColor = ConsoleColor.DarkYellow;
+            for (int i = 0; i < entities.Count; i++)
             {
-                SetCursorPosition(entities[i].posX, entities[i].posY);
-                Write("P");
+                if (entities[i].posX < mapLenghtX
+                    && entities[i].posY < mapLenghtY + mapStartY
+                    && entities[i].posX > mapStartX
+                    && entities[i].posY > mapStartY - 1)
+                {
+                    SetCursorPosition(entities[i].posX, entities[i].posY);
+                    Write("P");
+                }
             }
         }
         // Debug Players Pivot
-        ForegroundColor = ConsoleColor.DarkGreen;
-        for (int i = 0; i < players.Count; i++)
+        if (players.Count > 0)
         {
-            if (players[i].posX < mapLenghtX
-                && players[i].posY < mapLenghtY + mapStartY
-                && players[i].posX > mapStartX
-                && players[i].posY > mapStartY - 1)
+            ForegroundColor = ConsoleColor.DarkGreen;
+            for (int i = 0; i < players.Count; i++)
             {
-                SetCursorPosition(players[i].posX, players[i].posY);
-                Write("P");
+                if (players[i].posX < mapLenghtX
+                    && players[i].posY < mapLenghtY + mapStartY
+                    && players[i].posX > mapStartX
+                    && players[i].posY > mapStartY - 1)
+                {
+                    SetCursorPosition(players[i].posX, players[i].posY);
+                    Write("P");
+                }
             }
         }
         ForegroundColor = ConsoleColor.Gray;

@@ -226,7 +226,7 @@ public class Entity
                 }
             }
 
-            // Iterate within each entity tiles an move it
+            // Iterate within each entity tiles an Move + Subscribe it
             for (int x = 0; x < tiles.GetLength(0); x++)
             {
                 for (int y = 0; y < tiles.GetLength(1); y++)
@@ -240,6 +240,9 @@ public class Entity
             entityCanMove = false;  // Reset move capability
             moveTimer = 0;          // Reset moveTimer Entity move
             // MOVEMENT COMPLETE
+
+            // TODO ! Add an extra method to destroy entity after ste into whater (only if moving entity is Player)
+            // Late Collision Check | Used to destroy entity after step into wather
         }
         // MOVEMENT NOT POSSIBLE | Due to collision check
     }
@@ -265,7 +268,6 @@ public class Entity
     public void Die()
     {
         // Iterate through tiles and Explode them | Tiles death, damage and explosion are managed in Tile class
-
         for (int y = 0; y < tiles.GetLength(1); y++)
         {
             for (int x = 0; x < tiles.GetLength(0); x++)
@@ -274,7 +276,7 @@ public class Entity
                 {
                     tiles[x, y].Explode(tiles[x, y]);
                     // Set the tile in the entity tiles array as null
-                    tiles[x, y] = null;
+                    //tiles[x, y] = null;   // ! Not needed ???  Already set as null inside the Explode => Unsubscribe Method 
                 }
             }
         }

@@ -23,22 +23,22 @@ QuitApp();
 
 
 // === TEST CODE
-void TestCode()
-{
-    WriteLine("=== Starting Test Code Space");
-    WriteLine("Test 2d array length reading");
-    char[,] testArray = {
-    {'x', 'x', 'x'},
-    {'x', 'x', 'x'}
-};
-    int x = testArray.GetLength(1);
-    int y = testArray.GetLength(0);
-    WriteLine(x);
-    WriteLine(y);
+// void TestCode()
+// {
+//     WriteLine("=== Starting Test Code Space");
+//     WriteLine("Test 2d array length reading");
+//     char[,] testArray = {
+//     {'x', 'x', 'x'},
+//     {'x', 'x', 'x'}
+// };
+//     int x = testArray.GetLength(1);
+//     int y = testArray.GetLength(0);
+//     WriteLine(x);
+//     WriteLine(y);
 
-    WriteLine("=== Test Code Space Ended | Press a key to continue . . .");
-    ReadKey();
-}
+//     WriteLine("=== Test Code Space Ended | Press a key to continue . . .");
+//     ReadKey();
+// }
 
 // === METHODS
 void SystemInit()
